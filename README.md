@@ -1,18 +1,39 @@
-# Cursor Office
+<p align="center">
+  <img src="assets/idle.png" alt="Cursor Office" width="460">
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
-[![VS Code](https://img.shields.io/badge/Cursor-1.85+-007ACC.svg)](https://cursor.com)
+<h1 align="center">Cursor Office</h1>
 
-Your AI agent writes your code, reads your files, runs your tests, and fixes your bugs. The least you can do is give it an office.
+<p align="center">
+  Your AI agent writes your code, reads your files, runs your tests, and fixes your bugs.<br>
+  The least you can do is give it an office.
+</p>
 
-**Warning: once you install this, a Cursor window without a tiny pixel office at the bottom will feel broken forever.**
+<p align="center">
+  <strong>Warning: once you install this, a Cursor window without a tiny pixel office at the bottom will feel broken forever.</strong>
+</p>
+
+<p align="center">
+  <a href="#install"><img src="https://img.shields.io/badge/Install-Guide-blue?style=for-the-badge" alt="Install"></a>
+  &nbsp;
+  <a href="#contributing"><img src="https://img.shields.io/badge/Plugins-Add_Yours-orange?style=for-the-badge" alt="Plugins"></a>
+  &nbsp;
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/Contributing-Guide-green?style=for-the-badge" alt="Contributing"></a>
+</p>
+
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-strict-blue.svg" alt="TypeScript"></a>
+  <a href="https://cursor.com"><img src="https://img.shields.io/badge/Cursor-1.85+-007ACC.svg" alt="Cursor"></a>
+  <a href="https://github.com/ofershap/cursor-office"><img src="https://img.shields.io/badge/Sprites-100%25_code-ff69b4.svg" alt="Sprites"></a>
+  <a href="https://github.com/ofershap/cursor-office"><img src="https://img.shields.io/badge/Bundle-27KB-brightgreen.svg" alt="Bundle size"></a>
+</p>
+
+---
 
 ```
 Install → Open "Cursor Office" in bottom panel (Cmd+Shift+.) → done
 ```
-
-> 27KB. No config. Every sprite drawn from code. Zero images.
 
 ![Cursor Office - pixel art office for Cursor AI agents](assets/demo.gif)
 
