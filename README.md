@@ -100,9 +100,9 @@ When the agent isn't working, it has a life. It stands around, grabs coffee, bro
 
 ## Install
 
-### From Open VSX
+### From Extensions panel
 
-Install directly from [Open VSX](https://open-vsx.org/extension/ofershap/cursor-office), or search "Cursor Office" in the Extensions panel.
+Search **"Cursor Office"** in the Extensions panel (`Cmd+Shift+X`) and hit install.
 
 ### From source
 
