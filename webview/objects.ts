@@ -74,7 +74,7 @@ export function createPlant(col: number, row: number): InteractiveObject {
 export function createWindow(col: number, row: number): InteractiveObject {
   return {
     id: 'window', sprites: [windowSprite], position: { col, row },
-    hitbox: { w: 36, h: 28 }, zY: row * TILE_SIZE,
+    hitbox: { w: 30, h: 22 }, zY: row * TILE_SIZE,
     state: { open: false },
     onClick: (obj) => {
       obj.state.open = !(obj.state.open as boolean);
@@ -97,16 +97,16 @@ export function createWindow(col: number, row: number): InteractiveObject {
         skyTop = '#4488cc'; skyBot = '#88bbdd';
       }
 
-      const grad = ctx.createLinearGradient(x, y + 2 * scale, x, y + 23 * scale);
+      const grad = ctx.createLinearGradient(x, y + 2 * scale, x, y + 17 * scale);
       grad.addColorStop(0, skyTop);
       grad.addColorStop(1, skyBot);
       ctx.fillStyle = grad;
-      ctx.fillRect(x + 2 * scale, y + 2 * scale, 15 * scale, 21 * scale);
-      ctx.fillRect(x + 19 * scale, y + 2 * scale, 15 * scale, 21 * scale);
+      ctx.fillRect(x + 2 * scale, y + 2 * scale, 12 * scale, 15 * scale);
+      ctx.fillRect(x + 16 * scale, y + 2 * scale, 12 * scale, 15 * scale);
 
       if (isNight) {
         ctx.fillStyle = '#ffffff';
-        const stars = [[5,4],[10,7],[22,3],[30,8],[26,5],[8,10]];
+        const stars = [[4,3],[8,6],[18,3],[24,6],[21,4],[6,8]];
         for (const [sx, sy] of stars) {
           const twinkle = 0.3 + 0.7 * Math.abs(Math.sin(tick * 1.5 + sx + sy));
           ctx.globalAlpha = twinkle;
@@ -115,36 +115,36 @@ export function createWindow(col: number, row: number): InteractiveObject {
         ctx.globalAlpha = 1;
         ctx.fillStyle = '#eeeedd';
         ctx.beginPath();
-        ctx.arc(x + 28 * scale, y + 6 * scale, 2.5 * scale, 0, Math.PI * 2);
+        ctx.arc(x + 23 * scale, y + 5 * scale, 2 * scale, 0, Math.PI * 2);
         ctx.fill();
       } else {
         ctx.fillStyle = 'rgba(255,255,255,0.6)';
-        const cloudX = ((tick * 3) % 40) - 5;
+        const cloudX = ((tick * 3) % 32) - 4;
         ctx.beginPath();
-        ctx.arc(x + cloudX * scale, y + 7 * scale, 2 * scale, 0, Math.PI * 2);
-        ctx.arc(x + (cloudX + 3) * scale, y + 6 * scale, 2.5 * scale, 0, Math.PI * 2);
-        ctx.arc(x + (cloudX + 6) * scale, y + 7 * scale, 2 * scale, 0, Math.PI * 2);
+        ctx.arc(x + cloudX * scale, y + 6 * scale, 1.5 * scale, 0, Math.PI * 2);
+        ctx.arc(x + (cloudX + 2.5) * scale, y + 5 * scale, 2 * scale, 0, Math.PI * 2);
+        ctx.arc(x + (cloudX + 5) * scale, y + 6 * scale, 1.5 * scale, 0, Math.PI * 2);
         ctx.fill();
 
         if (isSunset) {
           ctx.fillStyle = '#ff8844';
           ctx.beginPath();
-          ctx.arc(x + 10 * scale, y + 20 * scale, 4 * scale, Math.PI, 0);
+          ctx.arc(x + 8 * scale, y + 15 * scale, 3 * scale, Math.PI, 0);
           ctx.fill();
         }
       }
 
       ctx.fillStyle = isNight ? '#0a0a18' : '#334455';
       const buildings = [
-        [3,17,5,23], [6,15,9,23], [10,19,13,23],
-        [20,16,23,23], [24,19,27,23], [28,15,31,23], [32,18,34,23]
+        [3,13,5,17], [5,11,8,17], [9,14,11,17],
+        [17,12,19,17], [20,14,22,17], [23,11,26,17], [26,13,28,17]
       ];
       for (const [bx1, by1, bx2, by2] of buildings) {
         ctx.fillRect(x + bx1 * scale, y + by1 * scale, (bx2 - bx1) * scale, (by2 - by1) * scale);
       }
       if (isNight) {
         ctx.fillStyle = '#ffdd66';
-        const wins = [[4,19],[7,17],[8,19],[25,18],[29,17],[33,20]];
+        const wins = [[4,14],[6,12],[7,14],[21,13],[24,12],[27,15]];
         for (const [wx, wy] of wins) {
           if (Math.sin(tick * 0.5 + wx + wy) > -0.3)
             ctx.fillRect(x + wx * scale, y + wy * scale, scale, scale);
@@ -155,18 +155,18 @@ export function createWindow(col: number, row: number): InteractiveObject {
 
       if (!(obj.state.open as boolean)) {
         ctx.fillStyle = 'rgba(140,80,60,0.35)';
-        ctx.fillRect(x + 2 * scale, y + 2 * scale, 4 * scale, 21 * scale);
-        ctx.fillRect(x + 13 * scale, y + 2 * scale, 4 * scale, 21 * scale);
-        ctx.fillRect(x + 19 * scale, y + 2 * scale, 4 * scale, 21 * scale);
-        ctx.fillRect(x + 30 * scale, y + 2 * scale, 4 * scale, 21 * scale);
+        ctx.fillRect(x + 2 * scale, y + 2 * scale, 3 * scale, 15 * scale);
+        ctx.fillRect(x + 11 * scale, y + 2 * scale, 3 * scale, 15 * scale);
+        ctx.fillRect(x + 16 * scale, y + 2 * scale, 3 * scale, 15 * scale);
+        ctx.fillRect(x + 25 * scale, y + 2 * scale, 3 * scale, 15 * scale);
       }
 
       if ((obj.state.open as boolean) && !isNight) {
-        const lightGrad = ctx.createLinearGradient(x + 5 * scale, y + 28 * scale, x + 5 * scale, y + 50 * scale);
+        const lightGrad = ctx.createLinearGradient(x + 4 * scale, y + 22 * scale, x + 4 * scale, y + 40 * scale);
         lightGrad.addColorStop(0, 'rgba(255,240,200,0.08)');
         lightGrad.addColorStop(1, 'rgba(255,240,200,0)');
         ctx.fillStyle = lightGrad;
-        ctx.fillRect(x + 2 * scale, y + 28 * scale, 32 * scale, 22 * scale);
+        ctx.fillRect(x + 2 * scale, y + 22 * scale, 26 * scale, 18 * scale);
       }
     },
   };
@@ -548,7 +548,7 @@ export function createDefaultObjects(): InteractiveObject[] {
   return [
     createRug(1.5, 1.4),
     createLamp(0.5, 0),
-    createWindow(3.8, 0.1),
+    createWindow(3.8, 0.15),
     createDesk(1.5, 0.6),
     createChair(1.8, 1.3),
     createCoffeeMug(3, 0.85),

@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.StatusBarAlignment.Left,
     -100
   );
-  statusBar.text = '$(home) Cursor Office';
+  statusBar.text = '$(briefcase) Cursor Office';
   statusBar.tooltip = 'Open Cursor Office';
   statusBar.command = 'cursorOffice.show';
   statusBar.backgroundColor = new vscode.ThemeColor(

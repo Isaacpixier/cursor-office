@@ -298,35 +298,29 @@ export const plantStage3: SpriteData = (() => {
 // ============ WINDOW — 64×44, wooden frame with glass panes ============
 
 export const windowSprite: SpriteData = (() => {
-  const s = makeSprite(36, 28);
+  const s = makeSprite(30, 22);
   const { outline: O, woodDark: WD, woodMid: WM, woodLight: WL } = PAL;
 
-  // Outer frame
-  fill(s, 0, 0, 35, 27, WM);
-  outline(s, 0, 0, 35, 27, O);
-  fill(s, 1, 1, 34, 1, WL);
-  fill(s, 1, 1, 1, 26, WL);
+  fill(s, 0, 0, 29, 21, WM);
+  outline(s, 0, 0, 29, 21, O);
+  fill(s, 1, 1, 28, 1, WL);
+  fill(s, 1, 1, 1, 20, WL);
 
-  // Left pane
-  fill(s, 2, 2, 16, 23, '#88bbdd');
-  outline(s, 2, 2, 16, 23, WD);
+  fill(s, 2, 2, 13, 17, '#88bbdd');
+  outline(s, 2, 2, 13, 17, WD);
 
-  // Right pane
-  fill(s, 19, 2, 33, 23, '#88bbdd');
-  outline(s, 19, 2, 33, 23, WD);
+  fill(s, 16, 2, 27, 17, '#88bbdd');
+  outline(s, 16, 2, 27, 17, WD);
 
-  // Center divider
-  fill(s, 17, 0, 18, 27, WM);
-  outline(s, 17, 0, 18, 27, O);
+  fill(s, 14, 0, 15, 21, WM);
+  outline(s, 14, 0, 15, 21, O);
 
-  // Horizontal crossbar
-  fill(s, 0, 12, 35, 13, WM);
-  fill(s, 1, 12, 34, 12, WL);
+  fill(s, 0, 9, 29, 10, WM);
+  fill(s, 1, 9, 28, 9, WL);
 
-  // Window sill
-  fill(s, 0, 24, 35, 27, WD);
-  outline(s, 0, 24, 35, 27, O);
-  fill(s, 1, 25, 34, 25, WM);
+  fill(s, 0, 18, 29, 21, WD);
+  outline(s, 0, 18, 29, 21, O);
+  fill(s, 1, 19, 28, 19, WM);
 
   return s;
 })();
