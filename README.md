@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <strong>Warning: once you install this, a Cursor window without a tiny pixel office at the bottom will feel broken forever.</strong>
+  A pixel art workspace that lives in your bottom panel. Your agent types, reads, celebrates, takes coffee breaks, pets the cat, and plays arcade games between tasks. 27KB. No config. Every sprite drawn from code.
 </p>
 
 <p align="center">
