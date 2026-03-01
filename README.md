@@ -183,6 +183,25 @@ All sprites are generated procedurally in `sprites.ts` using `fill()` and `outli
 
 ---
 
+## Contributing
+
+Add your own objects, sprites, and office backgrounds. The extension has a plugin API that lets you register new interactive objects and custom floor/wall themes at runtime:
+
+```typescript
+window.agentArcade.registerObject(myObject);
+window.agentArcade.registerBackground(myBackground);
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide, including the `InteractiveObject` interface, sprite format, background renderer, and a complete example.
+
+---
+
+## Sponsor
+
+Want your brand in the office? A mug with your logo, a poster on the wall, a gadget on the desk. Pixel art, fully interactive, seen by every user every session. Reach out on [LinkedIn](https://linkedin.com/in/ofershap) or open an issue.
+
+---
+
 ## Author
 
 [![Made by ofershap](https://gitshow.dev/api/card/ofershap)](https://gitshow.dev/ofershap)

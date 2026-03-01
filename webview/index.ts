@@ -1,4 +1,4 @@
-import { OfficeState, AgentMessage } from './types';
+import { OfficeState, AgentMessage, InteractiveObject, BackgroundRenderer } from './types';
 import { createDefaultObjects } from './objects';
 import { createCharacter, setActivity, attractToObject } from './character';
 import { startGameLoop } from './gameLoop';
@@ -44,7 +44,16 @@ const state: OfficeState = {
   dimmed: false,
   tick: 0,
   hoveredObjectId: null,
+  floatingTexts: [],
+  clickCounter: null,
+  customBackground: null,
 };
+
+const CLICK_COUNTER_RESET = 2.5;
+
+function spawnFloatingText(x: number, y: number, text: string, color: string) {
+  state.floatingTexts.push({ text, x, y, age: 0, color });
+}
 
 canvas.addEventListener('click', (e) => {
   const rect = canvas.getBoundingClientRect();
@@ -53,8 +62,41 @@ canvas.addEventListener('click', (e) => {
   const clicked = handleClick(mx, my, state, scale);
   if (clicked) {
     attractToObject(state.character, clicked);
+
+    if (state.clickCounter && state.clickCounter.objectId === clicked) {
+      state.clickCounter.count++;
+      state.clickCounter.resetTimer = CLICK_COUNTER_RESET;
+    } else {
+      state.clickCounter = { objectId: clicked, count: 1, resetTimer: CLICK_COUNTER_RESET };
+    }
+
+    const obj = state.objects.find(o => o.id === clicked);
+    if (obj) {
+      const fx = mx + offsetX;
+      const fy = my + offsetY;
+      const count = state.clickCounter!.count;
+      const colors = ['#88ddff', '#aaffaa', '#ffdd66', '#ff88aa', '#ddaaff'];
+      const color = count >= 10 ? '#ffdd00' : colors[(count - 1) % colors.length]!;
+      spawnFloatingText(fx, fy - 10 * scale, `+${count}`, color);
+    }
   }
 });
+
+export function registerObject(obj: InteractiveObject) {
+  const existing = state.objects.findIndex(o => o.id === obj.id);
+  if (existing >= 0) state.objects[existing] = obj;
+  else state.objects.push(obj);
+}
+
+export function registerBackground(bg: BackgroundRenderer) {
+  state.customBackground = bg;
+}
+
+export function removeObject(id: string) {
+  state.objects = state.objects.filter(o => o.id !== id);
+}
+
+(window as Record<string, unknown>).agentArcade = { registerObject, registerBackground, removeObject };
 
 canvas.addEventListener('mousemove', (e) => {
   const rect = canvas.getBoundingClientRect();

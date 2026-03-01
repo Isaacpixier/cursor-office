@@ -15,15 +15,20 @@ export function renderOffice(ctx: CanvasRenderingContext2D, state: OfficeState, 
   ctx.save();
   ctx.translate(offsetX, offsetY);
 
-  // Floor
-  for (let r = WALL_ROWS; r < ROWS; r++)
-    for (let c = 0; c < COLS; c++)
-      renderSprite(ctx, floorTile, c * tileS, r * tileS, scale);
+  if (state.customBackground) {
+    state.customBackground.renderWall(ctx, COLS, WALL_ROWS, TILE_SIZE, scale, state.tick);
+    state.customBackground.renderFloor(ctx, COLS, ROWS, WALL_ROWS, TILE_SIZE, scale, state.tick);
+  } else {
+    // Floor
+    for (let r = WALL_ROWS; r < ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        renderSprite(ctx, floorTile, c * tileS, r * tileS, scale);
 
-  // Wall
-  for (let r = 0; r < WALL_ROWS; r++)
-    for (let c = 0; c < COLS; c++)
-      renderSprite(ctx, wallTile, c * tileS, r * tileS, scale);
+    // Wall
+    for (let r = 0; r < WALL_ROWS; r++)
+      for (let c = 0; c < COLS; c++)
+        renderSprite(ctx, wallTile, c * tileS, r * tileS, scale);
+  }
 
   // Baseboard — thick line where wall meets floor
   const baseY = WALL_ROWS * tileS;
@@ -98,6 +103,67 @@ export function renderOffice(ctx: CanvasRenderingContext2D, state: OfficeState, 
   // Ambient dust particles
   renderParticles(ctx, state, scale);
 
+  // Floating click texts
+  renderFloatingTexts(ctx, state, scale, offsetX);
+
+  // Click counter badge
+  renderClickCounter(ctx, state, scale);
+
+  ctx.restore();
+}
+
+function renderFloatingTexts(ctx: CanvasRenderingContext2D, state: OfficeState, scale: number, _offsetX: number) {
+  for (const ft of state.floatingTexts) {
+    const progress = ft.age / 1.2;
+    const alpha = progress < 0.7 ? 1 : 1 - (progress - 0.7) / 0.3;
+    const rise = ft.age * 40 * scale;
+    const wobble = Math.sin(ft.age * 6) * 3 * scale;
+    const growScale = progress < 0.15 ? progress / 0.15 : 1;
+    const fontSize = Math.max(10, Math.round(5 * scale * growScale));
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = `bold ${fontSize}px monospace`;
+    ctx.fillStyle = ft.color;
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+    ctx.lineWidth = Math.max(1, scale * 0.4);
+    const x = ft.x + wobble;
+    const y = ft.y - rise;
+    ctx.strokeText(ft.text, x, y);
+    ctx.fillText(ft.text, x, y);
+    ctx.restore();
+  }
+}
+
+function renderClickCounter(ctx: CanvasRenderingContext2D, state: OfficeState, scale: number) {
+  if (!state.clickCounter || state.clickCounter.count < 2) return;
+
+  const count = state.clickCounter.count;
+  const sceneW = COLS * TILE_SIZE * scale;
+  const fontSize = Math.max(10, Math.round(4 * scale));
+  ctx.font = `bold ${fontSize}px monospace`;
+
+  let label: string;
+  let color: string;
+  if (count >= 50) { label = `🔥 ${count}x COMBO!`; color = '#ff4444'; }
+  else if (count >= 20) { label = `⚡ ${count}x combo!`; color = '#ffaa00'; }
+  else if (count >= 10) { label = `✨ ${count}x combo`; color = '#ffdd00'; }
+  else { label = `${count}x`; color = '#aaddff'; }
+
+  const tw = ctx.measureText(label).width;
+  const px = sceneW - tw - 6 * scale;
+  const py = 4 * scale + fontSize;
+
+  const pulse = 1 + Math.sin(state.tick * 8) * 0.05 * Math.min(count, 20);
+  ctx.save();
+  ctx.translate(px + tw / 2, py - fontSize / 2);
+  ctx.scale(pulse, pulse);
+  ctx.translate(-(px + tw / 2), -(py - fontSize / 2));
+
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillText(label, px + scale * 0.3, py + scale * 0.3);
+  ctx.fillStyle = color;
+  ctx.fillText(label, px, py);
   ctx.restore();
 }
 

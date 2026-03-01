@@ -21,6 +21,14 @@ export function startGameLoop(
 
     updateCharacter(state.character, dt);
 
+    for (const ft of state.floatingTexts) ft.age += dt;
+    state.floatingTexts = state.floatingTexts.filter(ft => ft.age < 1.2);
+
+    if (state.clickCounter) {
+      state.clickCounter.resetTimer -= dt;
+      if (state.clickCounter.resetTimer <= 0) state.clickCounter = null;
+    }
+
     const scale = getScale();
     const offsetX = getOffsetX();
     const offsetY = getOffsetY();
