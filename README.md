@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  A pixel art workspace that lives in your bottom panel. Your agent types, reads, celebrates, takes coffee breaks, pets the cat, and plays arcade games between tasks. 27KB. No config. Every sprite drawn from code.
+  <em>You'll find yourself glancing at the bottom panel just to see what it's up to.</em>
 </p>
 
 <p align="center">
