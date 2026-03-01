@@ -2,26 +2,44 @@ import { OfficeState } from './types';
 import { TILE_SIZE, COLS, ROWS, floorTile, wallTile, renderSprite } from './sprites';
 import { renderCharacter } from './character';
 
-const WALL_ROWS = 2;
+const WALL_ROWS = 1;
 
-export function renderOffice(ctx: CanvasRenderingContext2D, state: OfficeState, scale: number) {
+export function renderOffice(ctx: CanvasRenderingContext2D, state: OfficeState, scale: number, offsetX: number, offsetY: number) {
   const tileS = TILE_SIZE * scale;
+  const sceneW = COLS * tileS;
+  const sceneH = ROWS * tileS;
 
-  for (let r = WALL_ROWS; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
+  ctx.fillStyle = '#0e0e1a';
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+  ctx.save();
+  ctx.translate(offsetX, offsetY);
+
+  // Floor
+  for (let r = WALL_ROWS; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++)
       renderSprite(ctx, floorTile, c * tileS, r * tileS, scale);
-    }
-  }
 
-  for (let r = 0; r < WALL_ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
+  // Wall
+  for (let r = 0; r < WALL_ROWS; r++)
+    for (let c = 0; c < COLS; c++)
       renderSprite(ctx, wallTile, c * tileS, r * tileS, scale);
-    }
-  }
 
-  ctx.fillStyle = '#4a4a6e';
-  ctx.fillRect(0, WALL_ROWS * tileS - Math.ceil(scale * 0.5), COLS * tileS, Math.ceil(scale * 1.5));
+  // Baseboard — thick line where wall meets floor
+  const baseY = WALL_ROWS * tileS;
+  ctx.fillStyle = '#3a3a58';
+  ctx.fillRect(0, baseY - Math.ceil(scale), sceneW, Math.ceil(scale * 2));
+  ctx.fillStyle = '#2a2a44';
+  ctx.fillRect(0, baseY + Math.ceil(scale), sceneW, Math.ceil(scale));
 
+  // Wall shadow on floor (soft gradient)
+  const shadowGrad = ctx.createLinearGradient(0, baseY, 0, baseY + 20 * scale);
+  shadowGrad.addColorStop(0, 'rgba(0,0,0,0.2)');
+  shadowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = shadowGrad;
+  ctx.fillRect(0, baseY, sceneW, 20 * scale);
+
+  // Z-sorted rendering of objects and character
   const sortable: { zY: number; render: () => void }[] = [];
 
   for (const obj of state.objects) {
@@ -32,51 +50,64 @@ export function renderOffice(ctx: CanvasRenderingContext2D, state: OfficeState, 
   }
 
   sortable.push({
-    zY: state.character.position.row * tileS + TILE_SIZE * scale,
+    zY: (state.character.position.row + 1) * TILE_SIZE,
     render: () => {
-      const { character } = state;
-      const px = character.position.col * tileS;
-      const py = character.position.row * tileS - 8 * scale;
-      renderCharacter(ctx, character, px, py, scale);
+      const px = state.character.position.col * tileS;
+      const py = state.character.position.row * tileS - 8 * scale;
+      renderCharacter(ctx, state.character, px, py, scale);
     },
   });
 
   sortable.sort((a, b) => a.zY - b.zY);
   for (const item of sortable) item.render();
 
-  if (state.hoveredObjectId) {
-    const obj = state.objects.find(o => o.id === state.hoveredObjectId);
-    if (obj) {
-      const px = obj.position.col * tileS;
-      const py = obj.position.row * tileS;
-      const pw = obj.hitbox.w * tileS;
-      const ph = obj.hitbox.h * tileS;
-
-      const glowAlpha = 0.3 + 0.15 * Math.sin(state.tick * 6);
-      ctx.strokeStyle = `rgba(255,255,100,${glowAlpha + 0.3})`;
-      ctx.lineWidth = Math.max(2, scale * 1.5);
-      ctx.shadowColor = 'rgba(255,255,100,0.6)';
-      ctx.shadowBlur = 8 * scale;
-      ctx.strokeRect(px - scale, py - scale, pw + scale * 2, ph + scale * 2);
-      ctx.shadowBlur = 0;
-    }
+  // Lamp light cone on floor
+  const lamp = state.objects.find(o => o.id === 'lamp');
+  if (lamp && lamp.state.on) {
+    const lx = lamp.position.col * tileS + 8 * scale;
+    const ly = lamp.position.row * tileS + 8 * scale;
+    const pulseR = 50 * scale + Math.sin(state.tick * 1.5) * 3 * scale;
+    const grad = ctx.createRadialGradient(lx, ly, 0, lx, ly + 20 * scale, pulseR);
+    grad.addColorStop(0, 'rgba(255,240,180,0.12)');
+    grad.addColorStop(0.4, 'rgba(255,240,180,0.06)');
+    grad.addColorStop(1, 'rgba(255,240,180,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(lx - pulseR, ly, pulseR * 2, pulseR);
   }
 
+  // Monitor glow (subtle blue glow on desk area)
+  const desk = state.objects.find(o => o.id === 'desk');
+  if (desk && !state.dimmed) {
+    const mx = desk.position.col * tileS + 16 * scale;
+    const my = desk.position.row * tileS;
+    const glowR = 25 * scale;
+    const grad = ctx.createRadialGradient(mx, my, 0, mx, my, glowR);
+    const pulse = 0.06 + 0.02 * Math.sin(state.tick * 2);
+    grad.addColorStop(0, `rgba(100,160,255,${pulse})`);
+    grad.addColorStop(1, 'rgba(100,160,255,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(mx - glowR, my - glowR, glowR * 2, glowR * 2);
+  }
+
+  // Dimmed overlay
   if (state.dimmed) {
-    ctx.fillStyle = 'rgba(0,0,20,0.45)';
-    ctx.fillRect(0, 0, COLS * tileS, ROWS * tileS);
+    ctx.fillStyle = 'rgba(0,0,20,0.5)';
+    ctx.fillRect(0, 0, sceneW, sceneH);
   }
 
+  // Ambient dust particles
   renderParticles(ctx, state, scale);
+
+  ctx.restore();
 }
 
 function renderParticles(ctx: CanvasRenderingContext2D, state: OfficeState, scale: number) {
-  ctx.globalAlpha = 0.12;
-  for (let i = 0; i < 6; i++) {
-    const x = ((state.tick * 6 + i * 97) % (COLS * TILE_SIZE)) * scale;
-    const y = ((Math.sin(state.tick * 0.4 + i * 1.3) * 0.5 + 0.5) * ROWS * TILE_SIZE) * scale;
-    const sz = (1 + Math.sin(state.tick * 0.8 + i) * 0.5) * scale;
-    ctx.fillStyle = '#fff';
+  ctx.globalAlpha = 0.1;
+  for (let i = 0; i < 8; i++) {
+    const x = ((state.tick * 4 + i * 83) % (COLS * TILE_SIZE)) * scale;
+    const y = ((Math.sin(state.tick * 0.3 + i * 1.7) * 0.5 + 0.5) * ROWS * TILE_SIZE) * scale;
+    const sz = (0.8 + Math.sin(state.tick * 0.6 + i) * 0.4) * scale;
+    ctx.fillStyle = '#ffe8c0';
     ctx.beginPath();
     ctx.arc(x, y, sz, 0, Math.PI * 2);
     ctx.fill();

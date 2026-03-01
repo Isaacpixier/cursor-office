@@ -1,342 +1,543 @@
-import { InteractiveObject, OfficeState, SpriteData } from './types';
+import { InteractiveObject, OfficeState } from './types';
+import { roundRect } from './canvas';
 import {
   TILE_SIZE, deskSprite, chairSprite,
-  mugSprite1, mugSprite2,
   plantStage1, plantStage2, plantStage3,
-  whiteboardSprite, arcadeCabinetSprite,
+  windowSprite, arcadeCabinetSprite,
   lampSprite, lampSpriteOff,
+  bookshelfSprite, waterCoolerSprite,
+  catSprite1, catSprite2,
   renderSprite,
 } from './sprites';
 
-function defaultRender(ctx: CanvasRenderingContext2D, obj: InteractiveObject, tick: number, scale: number) {
+function defaultRender(ctx: CanvasRenderingContext2D, obj: InteractiveObject, _tick: number, scale: number) {
   const sprite = obj.sprites[0];
   if (!sprite) return;
-  const x = obj.position.col * TILE_SIZE * scale;
-  const y = obj.position.row * TILE_SIZE * scale;
-  renderSprite(ctx, sprite, x, y, scale);
+  renderSprite(ctx, sprite, obj.position.col * TILE_SIZE * scale, obj.position.row * TILE_SIZE * scale, scale);
 }
 
 export function createDesk(col: number, row: number): InteractiveObject {
   return {
-    id: 'desk',
-    sprites: [deskSprite],
-    position: { col, row },
-    hitbox: { w: 2, h: 1 },
-    zY: (row + 1) * TILE_SIZE,
-    state: {},
-    onClick: () => {},
-    render: defaultRender,
+    id: 'desk', sprites: [deskSprite], position: { col, row },
+    hitbox: { w: 64, h: 44 }, zY: (row + 1.4) * TILE_SIZE,
+    state: {}, onClick: () => {}, render: defaultRender,
   };
 }
 
 export function createChair(col: number, row: number): InteractiveObject {
   return {
-    id: 'chair',
-    sprites: [chairSprite],
-    position: { col, row },
-    hitbox: { w: 1, h: 1 },
-    zY: (row + 1) * TILE_SIZE,
-    state: {},
-    onClick: () => {},
-    render: defaultRender,
-  };
-}
-
-export function createCoffeeMug(col: number, row: number): InteractiveObject {
-  return {
-    id: 'coffee',
-    sprites: [mugSprite1, mugSprite2],
-    position: { col, row },
-    hitbox: { w: 1, h: 1 },
-    zY: (row + 1) * TILE_SIZE,
-    state: { steaming: false, steamTimer: 0, wiggle: 0 },
-    onClick: (obj) => {
-      obj.state.steaming = true;
-      obj.state.steamTimer = 4;
-      obj.state.wiggle = 0.5;
-    },
-    render: (ctx, obj, tick, scale) => {
-      const dt = 0.016;
-      if ((obj.state.steamTimer as number) > 0) {
-        obj.state.steamTimer = (obj.state.steamTimer as number) - dt;
-        if ((obj.state.steamTimer as number) <= 0) {
-          obj.state.steaming = false;
-          obj.state.steamTimer = 0;
-        }
-      }
-      if ((obj.state.wiggle as number) > 0) {
-        obj.state.wiggle = (obj.state.wiggle as number) - dt;
-      }
-
-      const x = obj.position.col * TILE_SIZE * scale;
-      let y = obj.position.row * TILE_SIZE * scale;
-
-      const wiggleAmount = (obj.state.wiggle as number) > 0
-        ? Math.sin(tick * 30) * 2 * scale
-        : 0;
-
-      const sprite = obj.state.steaming
-        ? (Math.floor(tick * 3) % 2 === 0 ? obj.sprites[1] : obj.sprites[0])
-        : obj.sprites[0];
-      renderSprite(ctx, sprite!, x + wiggleAmount, y, scale);
-
-      if (obj.state.steaming) {
-        ctx.globalAlpha = 0.5;
-        for (let i = 0; i < 3; i++) {
-          const sx = x + (3 + i * 2) * scale;
-          const sy = y - (4 + Math.sin(tick * 4 + i * 2) * 3) * scale;
-          const size = Math.ceil(scale * 0.8);
-          ctx.fillStyle = '#ccc';
-          ctx.beginPath();
-          ctx.arc(sx, sy, size, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        ctx.globalAlpha = 1;
-      }
-    },
+    id: 'chair', sprites: [chairSprite], position: { col, row },
+    hitbox: { w: 28, h: 32 }, zY: (row + 1) * TILE_SIZE,
+    state: {}, onClick: () => {}, render: defaultRender,
   };
 }
 
 export function createPlant(col: number, row: number): InteractiveObject {
   return {
-    id: 'plant',
-    sprites: [plantStage1, plantStage2, plantStage3],
-    position: { col, row },
-    hitbox: { w: 1, h: 1 },
+    id: 'plant', sprites: [plantStage1, plantStage2, plantStage3],
+    position: { col, row }, hitbox: { w: 24, h: 32 },
     zY: (row + 1) * TILE_SIZE,
-    state: { stage: 0, clickCount: 0, bounce: 0, lastClickTick: 0 },
-    onClick: (obj, office) => {
-      obj.state.clickCount = (obj.state.clickCount as number) + 1;
+    state: { stage: 0, clicks: 0, bounce: 0 },
+    onClick: (obj) => {
+      obj.state.clicks = (obj.state.clicks as number) + 1;
       obj.state.bounce = 1.0;
-      obj.state.lastClickTick = office.tick;
-      const clicks = obj.state.clickCount as number;
-      if (clicks >= 10) obj.state.stage = 2;
-      else if (clicks >= 4) obj.state.stage = 1;
+      const c = obj.state.clicks as number;
+      if (c >= 10) obj.state.stage = 2;
+      else if (c >= 4) obj.state.stage = 1;
+      const stage = obj.state.stage as number;
+      return stage === 2 ? '🌸 Fully grown!' : stage === 1 ? '🌿 Growing!' : '🌱 Water me!';
     },
     render: (ctx, obj, tick, scale) => {
-      const dt = 0.016;
-      if ((obj.state.bounce as number) > 0) {
-        obj.state.bounce = Math.max(0, (obj.state.bounce as number) - dt * 3);
-      }
-
-      const stage = obj.state.stage as number;
-      const sprite = obj.sprites[Math.min(stage, obj.sprites.length - 1)];
+      if ((obj.state.bounce as number) > 0)
+        obj.state.bounce = Math.max(0, (obj.state.bounce as number) - 0.016 * 3);
+      const stage = Math.min(obj.state.stage as number, 2);
+      const sprite = obj.sprites[stage];
       const x = obj.position.col * TILE_SIZE * scale;
       let y = obj.position.row * TILE_SIZE * scale;
-
-      const bounceAmt = (obj.state.bounce as number);
-      if (bounceAmt > 0) {
-        y -= Math.sin(bounceAmt * Math.PI) * 4 * scale;
-      }
-
-      const sway = Math.sin(tick * 1.5) * 0.3 * scale * (stage + 1) * 0.3;
-
+      if ((obj.state.bounce as number) > 0) y -= Math.sin((obj.state.bounce as number) * Math.PI) * 4 * scale;
+      const sway = Math.sin(tick * 1.2) * 0.4 * scale * (stage + 1) * 0.3;
       renderSprite(ctx, sprite!, x + sway, y, scale);
-
       if (stage >= 2) {
-        const sparklePhase = (tick * 2) % 3;
-        ctx.fillStyle = `rgba(255,230,100,${0.3 + 0.3 * Math.sin(tick * 5)})`;
-        const starX = x + (5 + sparklePhase * 3) * scale;
-        const starY = y + (1 + Math.sin(tick * 3 + sparklePhase) * 2) * scale;
-        drawStar(ctx, starX, starY, scale * 1.5);
+        const alpha = 0.3 + 0.3 * Math.sin(tick * 4);
+        ctx.fillStyle = `rgba(255,230,100,${alpha})`;
+        for (let i = 0; i < 3; i++) {
+          const sx = x + (4 + i * 3 + Math.sin(tick * 2 + i) * 1.5) * scale;
+          const sy = y + (1 + Math.sin(tick * 3 + i * 2) * 2) * scale;
+          ctx.beginPath(); ctx.arc(sx, sy, scale * 0.8, 0, Math.PI * 2); ctx.fill();
+        }
       }
     },
   };
 }
 
-function drawStar(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
-  ctx.beginPath();
-  for (let i = 0; i < 5; i++) {
-    const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-    const px = x + Math.cos(angle) * size;
-    const py = y + Math.sin(angle) * size;
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
-  }
-  ctx.closePath();
-  ctx.fill();
-}
-
-export function createWhiteboard(col: number, row: number): InteractiveObject {
+export function createWindow(col: number, row: number): InteractiveObject {
   return {
-    id: 'whiteboard',
-    sprites: [whiteboardSprite],
-    position: { col, row },
-    hitbox: { w: 2, h: 2 },
-    zY: row * TILE_SIZE,
-    state: { text: 'Waiting for agent...' },
-    onClick: () => {},
+    id: 'window', sprites: [windowSprite], position: { col, row },
+    hitbox: { w: 36, h: 28 }, zY: row * TILE_SIZE,
+    state: { open: false },
+    onClick: (obj) => {
+      obj.state.open = !(obj.state.open as boolean);
+      return (obj.state.open as boolean) ? '🪟 Fresh air!' : '🪟 Closed';
+    },
     render: (ctx, obj, tick, scale) => {
       const x = obj.position.col * TILE_SIZE * scale;
       const y = obj.position.row * TILE_SIZE * scale;
-      renderSprite(ctx, obj.sprites[0]!, x, y, scale);
 
-      const text = obj.state.text as string;
-      if (text) {
-        const fontSize = Math.max(7, 4 * scale);
-        ctx.font = `bold ${fontSize}px monospace`;
-        ctx.fillStyle = '#333';
-        const maxW = 28 * scale;
-        const lines = wrapText(ctx, text, maxW);
-        lines.forEach((line, i) => {
-          ctx.fillText(line, x + 3 * scale, y + (6 + i * 6) * scale, maxW);
-        });
+      const hour = new Date().getHours();
+      const isNight = hour < 6 || hour >= 20;
+      const isSunset = hour >= 17 && hour < 20;
+
+      let skyTop: string, skyBot: string;
+      if (isNight) {
+        skyTop = '#0a0a2a'; skyBot = '#1a1a3a';
+      } else if (isSunset) {
+        skyTop = '#2a3060'; skyBot = '#dd7744';
+      } else {
+        skyTop = '#4488cc'; skyBot = '#88bbdd';
       }
 
-      const dotAlpha = 0.4 + 0.3 * Math.sin(tick * 2);
-      ctx.fillStyle = `rgba(60,200,60,${dotAlpha})`;
-      ctx.beginPath();
-      ctx.arc(x + 28 * scale, y + 2 * scale, scale * 1.5, 0, Math.PI * 2);
-      ctx.fill();
+      const grad = ctx.createLinearGradient(x, y + 2 * scale, x, y + 23 * scale);
+      grad.addColorStop(0, skyTop);
+      grad.addColorStop(1, skyBot);
+      ctx.fillStyle = grad;
+      ctx.fillRect(x + 2 * scale, y + 2 * scale, 15 * scale, 21 * scale);
+      ctx.fillRect(x + 19 * scale, y + 2 * scale, 15 * scale, 21 * scale);
+
+      if (isNight) {
+        ctx.fillStyle = '#ffffff';
+        const stars = [[5,4],[10,7],[22,3],[30,8],[26,5],[8,10]];
+        for (const [sx, sy] of stars) {
+          const twinkle = 0.3 + 0.7 * Math.abs(Math.sin(tick * 1.5 + sx + sy));
+          ctx.globalAlpha = twinkle;
+          ctx.fillRect(x + sx * scale, y + sy * scale, scale, scale);
+        }
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#eeeedd';
+        ctx.beginPath();
+        ctx.arc(x + 28 * scale, y + 6 * scale, 2.5 * scale, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        const cloudX = ((tick * 3) % 40) - 5;
+        ctx.beginPath();
+        ctx.arc(x + cloudX * scale, y + 7 * scale, 2 * scale, 0, Math.PI * 2);
+        ctx.arc(x + (cloudX + 3) * scale, y + 6 * scale, 2.5 * scale, 0, Math.PI * 2);
+        ctx.arc(x + (cloudX + 6) * scale, y + 7 * scale, 2 * scale, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (isSunset) {
+          ctx.fillStyle = '#ff8844';
+          ctx.beginPath();
+          ctx.arc(x + 10 * scale, y + 20 * scale, 4 * scale, Math.PI, 0);
+          ctx.fill();
+        }
+      }
+
+      ctx.fillStyle = isNight ? '#0a0a18' : '#334455';
+      const buildings = [
+        [3,17,5,23], [6,15,9,23], [10,19,13,23],
+        [20,16,23,23], [24,19,27,23], [28,15,31,23], [32,18,34,23]
+      ];
+      for (const [bx1, by1, bx2, by2] of buildings) {
+        ctx.fillRect(x + bx1 * scale, y + by1 * scale, (bx2 - bx1) * scale, (by2 - by1) * scale);
+      }
+      if (isNight) {
+        ctx.fillStyle = '#ffdd66';
+        const wins = [[4,19],[7,17],[8,19],[25,18],[29,17],[33,20]];
+        for (const [wx, wy] of wins) {
+          if (Math.sin(tick * 0.5 + wx + wy) > -0.3)
+            ctx.fillRect(x + wx * scale, y + wy * scale, scale, scale);
+        }
+      }
+
+      renderSprite(ctx, windowSprite, x, y, scale);
+
+      if (!(obj.state.open as boolean)) {
+        ctx.fillStyle = 'rgba(140,80,60,0.35)';
+        ctx.fillRect(x + 2 * scale, y + 2 * scale, 4 * scale, 21 * scale);
+        ctx.fillRect(x + 13 * scale, y + 2 * scale, 4 * scale, 21 * scale);
+        ctx.fillRect(x + 19 * scale, y + 2 * scale, 4 * scale, 21 * scale);
+        ctx.fillRect(x + 30 * scale, y + 2 * scale, 4 * scale, 21 * scale);
+      }
+
+      if ((obj.state.open as boolean) && !isNight) {
+        const lightGrad = ctx.createLinearGradient(x + 5 * scale, y + 28 * scale, x + 5 * scale, y + 50 * scale);
+        lightGrad.addColorStop(0, 'rgba(255,240,200,0.08)');
+        lightGrad.addColorStop(1, 'rgba(255,240,200,0)');
+        ctx.fillStyle = lightGrad;
+        ctx.fillRect(x + 2 * scale, y + 28 * scale, 32 * scale, 22 * scale);
+      }
     },
   };
 }
 
-function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-  const words = text.split(' ');
-  const lines: string[] = [];
-  let current = '';
-  for (const word of words) {
-    const test = current ? current + ' ' + word : word;
-    if (ctx.measureText(test).width > maxWidth && current) {
-      lines.push(current);
-      current = word;
-    } else {
-      current = test;
+function renderMiniGame(ctx: CanvasRenderingContext2D, game: number, tick: number, sx: number, sy: number, sw: number, sh: number, scale: number) {
+  const ps = scale;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(sx, sy, sw, sh);
+  ctx.clip();
+
+  if (game === 0) {
+    // Space invaders
+    const invaderW = 3 * ps, invaderH = 2 * ps;
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        const ix = sx + (1 + col * 4) * ps + Math.sin(tick * 2) * ps;
+        const iy = sy + (1 + row * 3) * ps;
+        ctx.fillStyle = row === 0 ? '#ff4444' : row === 1 ? '#44ff44' : '#4488ff';
+        ctx.fillRect(ix, iy, invaderW, invaderH);
+      }
     }
+    ctx.fillStyle = '#22ff44';
+    const shipX = sx + 5 * ps + Math.sin(tick * 3) * 3 * ps;
+    ctx.fillRect(shipX, sy + sh - 3 * ps, 3 * ps, 2 * ps);
+    // Bullet
+    const bulletY = sy + sh - (3 + ((tick * 12) % 10)) * ps;
+    if (bulletY > sy) { ctx.fillStyle = '#ffffff'; ctx.fillRect(shipX + ps, bulletY, ps, 2 * ps); }
+  } else if (game === 1) {
+    // Tetris
+    const colors = ['#ff4444', '#44ff44', '#4488ff', '#ffff44', '#ff88ff'];
+    const gridW = Math.floor(sw / ps);
+    for (let bx = 0; bx < gridW; bx++) {
+      const h = ((bx * 7 + 3) % 5) + 1;
+      ctx.fillStyle = colors[bx % colors.length]!;
+      for (let by = 0; by < h; by++) {
+        ctx.fillRect(sx + bx * ps, sy + sh - (by + 1) * ps, ps, ps);
+      }
+    }
+    // Falling piece
+    const pieceX = sx + (Math.floor(tick * 2) % gridW) * ps;
+    const pieceY = sy + ((tick * 6) % (sh / ps)) * ps;
+    ctx.fillStyle = colors[Math.floor(tick) % colors.length]!;
+    ctx.fillRect(pieceX, pieceY, 2 * ps, ps);
+    ctx.fillRect(pieceX, pieceY + ps, 2 * ps, ps);
+  } else {
+    // Pong
+    const ballX = sx + sw / 2 + Math.sin(tick * 4) * (sw / 2 - 2 * ps);
+    const ballY = sy + sh / 2 + Math.cos(tick * 3) * (sh / 2 - 2 * ps);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(ballX, ballY, ps, ps);
+    // Paddles
+    const lp = sy + sh / 2 + Math.sin(tick * 3) * (sh / 3);
+    const rp = sy + sh / 2 + Math.cos(tick * 4) * (sh / 3);
+    ctx.fillRect(sx + ps, lp, ps, 3 * ps);
+    ctx.fillRect(sx + sw - 2 * ps, rp, ps, 3 * ps);
+    // Center line
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    for (let dy = 0; dy < sh; dy += 3 * ps) ctx.fillRect(sx + sw / 2, sy + dy, ps * 0.5, ps);
   }
-  if (current) lines.push(current);
-  return lines.slice(0, 3);
+  ctx.restore();
 }
 
 export function createArcadeCabinet(col: number, row: number): InteractiveObject {
   return {
-    id: 'arcade',
-    sprites: [arcadeCabinetSprite],
-    position: { col, row },
-    hitbox: { w: 1, h: 2 },
-    zY: (row + 2) * TILE_SIZE,
-    state: { clickCount: 0, showBubble: false, bubbleTimer: 0 },
+    id: 'arcade', sprites: [arcadeCabinetSprite], position: { col, row },
+    hitbox: { w: 28, h: 56 }, zY: (row + 2) * TILE_SIZE,
+    state: { game: 0 },
     onClick: (obj) => {
-      obj.state.clickCount = (obj.state.clickCount as number) + 1;
-      if ((obj.state.clickCount as number) >= 3) {
-        obj.state.showBubble = true;
-        obj.state.bubbleTimer = 4;
-        obj.state.clickCount = 0;
-      }
+      obj.state.game = ((obj.state.game as number) + 1) % 3;
+      const names = ['👾 Space Invaders', '🧱 Tetris', '🏓 Pong'];
+      return names[obj.state.game as number];
     },
     render: (ctx, obj, tick, scale) => {
-      const dt = 0.016;
       const x = obj.position.col * TILE_SIZE * scale;
       const y = obj.position.row * TILE_SIZE * scale;
       renderSprite(ctx, obj.sprites[0]!, x, y, scale);
 
-      // Animated screen glow
-      const colors = ['#44ff44', '#4488ff', '#ff4444', '#ffff44'];
-      const ci = Math.floor(tick * 2) % colors.length;
-      ctx.fillStyle = colors[ci]!;
-      ctx.globalAlpha = 0.15 + 0.1 * Math.sin(tick * 5);
-      ctx.fillRect(
-        Math.floor(x + 4 * scale),
-        Math.floor(y + 6 * scale),
-        Math.ceil(8 * scale),
-        Math.ceil(9 * scale)
-      );
-      ctx.globalAlpha = 1;
+      // Mini-game on screen area (pixels 7-20 x, 11-26 y in sprite)
+      const screenX = x + 7 * scale;
+      const screenY = y + 11 * scale;
+      const screenW = 14 * scale;
+      const screenH = 16 * scale;
+      renderMiniGame(ctx, obj.state.game as number, tick, screenX, screenY, screenW, screenH, scale);
 
-      // Screen scan line effect
-      const scanY = ((tick * 20) % 9);
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      ctx.fillRect(
-        Math.floor(x + 4 * scale),
-        Math.floor(y + (6 + scanY) * scale),
-        Math.ceil(8 * scale),
-        Math.ceil(scale)
-      );
+      // Scanline effect
+      ctx.fillStyle = 'rgba(0,0,0,0.08)';
+      for (let sl = 0; sl < screenH; sl += 2 * scale)
+        ctx.fillRect(screenX, screenY + sl, screenW, scale);
 
-      if ((obj.state.bubbleTimer as number) > 0) {
-        obj.state.bubbleTimer = (obj.state.bubbleTimer as number) - dt;
-        if ((obj.state.bubbleTimer as number) <= 0) {
-          obj.state.showBubble = false;
-          obj.state.bubbleTimer = 0;
-        }
-        const fontSize = Math.max(9, 5 * scale);
-        ctx.font = `bold ${fontSize}px monospace`;
-        const label = 'Coming soon!';
-        const tw = ctx.measureText(label).width;
-        const bx = x + 8 * scale - tw / 2 - 4 * scale;
-        const by = y - fontSize - 8 * scale;
-        const bw = tw + 8 * scale;
-        const bh = fontSize + 6 * scale;
+      // Screen glow
+      const glowR = 10 * scale;
+      const gcx = x + 14 * scale;
+      const gcy = y + 32 * scale;
+      const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, glowR);
+      grad.addColorStop(0, 'rgba(100,200,100,0.05)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(gcx - glowR, gcy - glowR / 2, glowR * 2, glowR);
+    },
+  };
+}
 
-        ctx.fillStyle = 'rgba(30,30,30,0.9)';
-        roundRect(ctx, bx, by, bw, bh, 4 * scale);
-        ctx.fill();
-
-        ctx.strokeStyle = '#ff6b6b';
-        ctx.lineWidth = scale;
-        roundRect(ctx, bx, by, bw, bh, 4 * scale);
-        ctx.stroke();
-
-        ctx.fillStyle = '#ff6b6b';
-        ctx.fillText(label, bx + 4 * scale, by + fontSize + scale);
+export function createLamp(col: number, row: number): InteractiveObject {
+  return {
+    id: 'lamp', sprites: [lampSprite, lampSpriteOff], position: { col, row },
+    hitbox: { w: 24, h: 14 }, zY: 0,
+    state: { on: true, flashTimer: 0 },
+    onClick: (obj, office) => {
+      obj.state.on = !(obj.state.on as boolean);
+      office.dimmed = !(obj.state.on as boolean);
+      obj.state.flashTimer = 0.25;
+      return (obj.state.on as boolean) ? '💡 Light on' : '🌙 Light off';
+    },
+    render: (ctx, obj, _tick, scale) => {
+      if ((obj.state.flashTimer as number) > 0)
+        obj.state.flashTimer = (obj.state.flashTimer as number) - 0.016;
+      const sprite = (obj.state.on as boolean) ? obj.sprites[0] : obj.sprites[1];
+      renderSprite(ctx, sprite!, obj.position.col * TILE_SIZE * scale, obj.position.row * TILE_SIZE * scale, scale);
+      if ((obj.state.flashTimer as number) > 0) {
+        ctx.fillStyle = `rgba(255,255,200,${(obj.state.flashTimer as number) * 0.8})`;
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       }
     },
   };
 }
 
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
+// Bookshelf — full title, wider bubble
+export function createBookshelf(col: number, row: number): InteractiveObject {
+  return {
+    id: 'bookshelf', sprites: [bookshelfSprite], position: { col, row },
+    hitbox: { w: 16, h: 32 }, zY: row * TILE_SIZE + 32,
+    state: { selected: -1, bubbleTimer: 0, title: '' },
+    onClick: (obj) => {
+      const titles = ['Clean Code', 'SICP', 'Design Patterns', 'Pragmatic Prog.', 'YDKJS', 'Refactoring'];
+      obj.state.selected = ((obj.state.selected as number) + 1) % titles.length;
+      obj.state.title = titles[obj.state.selected as number];
+      obj.state.bubbleTimer = 3;
+      return null;
+    },
+    render: (ctx, obj, _tick, scale) => {
+      const x = obj.position.col * TILE_SIZE * scale;
+      const y = obj.position.row * TILE_SIZE * scale;
+      renderSprite(ctx, bookshelfSprite, x, y, scale);
+
+      if ((obj.state.bubbleTimer as number) > 0) {
+        obj.state.bubbleTimer = (obj.state.bubbleTimer as number) - 0.016;
+        const fontSize = Math.max(8, Math.round(3.8 * scale));
+        ctx.font = `bold ${fontSize}px monospace`;
+        const label = `📚 ${obj.state.title as string}`;
+        const tw = ctx.measureText(label).width;
+        const pad = 5 * scale;
+        const bw = tw + pad * 2;
+        const bh = fontSize + pad * 1.5;
+        const sceneW = 6 * TILE_SIZE * scale;
+        let bx = x + 8 * scale - bw / 2;
+        let by = y - bh - 4 * scale;
+        if (bx < 2 * scale) bx = 2 * scale;
+        if (bx + bw > sceneW - 2 * scale) bx = sceneW - bw - 2 * scale;
+        if (by < 2 * scale) by = 2 * scale;
+        ctx.fillStyle = 'rgba(20,20,30,0.92)';
+        roundRect(ctx, bx, by, bw, bh, 3 * scale);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(200,180,140,0.5)';
+        ctx.lineWidth = Math.max(1, scale * 0.4);
+        roundRect(ctx, bx, by, bw, bh, 3 * scale);
+        ctx.stroke();
+        ctx.fillStyle = '#e0d8c0';
+        ctx.fillText(label, bx + pad, by + pad + fontSize * 0.7);
+      }
+    },
+  };
 }
 
-export function createLamp(col: number, row: number): InteractiveObject {
+export function createWaterCooler(col: number, row: number): InteractiveObject {
   return {
-    id: 'lamp',
-    sprites: [lampSprite, lampSpriteOff],
-    position: { col, row },
-    hitbox: { w: 1, h: 1 },
-    zY: 0,
-    state: { on: true, flashTimer: 0 },
-    onClick: (obj, office) => {
-      obj.state.on = !(obj.state.on as boolean);
-      office.dimmed = !(obj.state.on as boolean);
-      obj.state.flashTimer = 0.3;
+    id: 'watercooler', sprites: [waterCoolerSprite], position: { col, row },
+    hitbox: { w: 16, h: 24 }, zY: row * TILE_SIZE + 24,
+    state: { bubbleTimer: 0 },
+    onClick: (obj) => { obj.state.bubbleTimer = 2; return '💧 Glug glug...'; },
+    render: (ctx, obj, tick, scale) => {
+      const x = obj.position.col * TILE_SIZE * scale;
+      const y = obj.position.row * TILE_SIZE * scale;
+      renderSprite(ctx, waterCoolerSprite, x, y, scale);
+      if ((obj.state.bubbleTimer as number) > 0) {
+        obj.state.bubbleTimer = (obj.state.bubbleTimer as number) - 0.016;
+        for (let i = 0; i < 4; i++) {
+          const bx = x + (6 + Math.sin(tick * 3 + i * 1.5) * 2) * scale;
+          const by = y + (1 + i * 1.5 - (2 - (obj.state.bubbleTimer as number)) * 2) * scale;
+          ctx.fillStyle = `rgba(136,204,238,${0.4 + 0.2 * Math.sin(tick * 5 + i)})`;
+          ctx.beginPath(); ctx.arc(bx, by, (1.2 - i * 0.15) * scale, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+    },
+  };
+}
+
+// Rug — soft woven carpet with visible textile texture and tassels
+export function createRug(col: number, row: number): InteractiveObject {
+  return {
+    id: 'rug', sprites: [], position: { col, row },
+    hitbox: { w: 56, h: 36 }, zY: row * TILE_SIZE,
+    state: {}, onClick: () => null,
+    render: (ctx, _obj, _tick, scale) => {
+      const x = col * TILE_SIZE * scale;
+      const y = row * TILE_SIZE * scale;
+      const w = 56 * scale;
+      const h = 36 * scale;
+
+      // Soft warm carpet base
+      ctx.fillStyle = '#b07858';
+      ctx.fillRect(x, y, w, h);
+      ctx.fillStyle = '#c08868';
+      ctx.fillRect(x + scale, y + scale, w - 2 * scale, h - 2 * scale);
+
+      // Woven texture lines (horizontal)
+      ctx.strokeStyle = 'rgba(160,120,80,0.3)';
+      ctx.lineWidth = scale * 0.4;
+      for (let dy = 3; dy < 30; dy += 3) {
+        ctx.beginPath();
+        ctx.moveTo(x + 2 * scale, y + dy * scale);
+        ctx.lineTo(x + w - 2 * scale, y + dy * scale);
+        ctx.stroke();
+      }
+
+      // Border stripe
+      ctx.strokeStyle = '#8a5a3a';
+      ctx.lineWidth = scale * 0.8;
+      ctx.strokeRect(x + 2.5 * scale, y + 2.5 * scale, w - 5 * scale, h - 5 * scale);
+
+      // Inner pattern — small repeating diamonds
+      ctx.fillStyle = '#9a6848';
+      for (let dy = 0; dy < 3; dy++) {
+        for (let dx = 0; dx < 5; dx++) {
+          const px = x + (6 + dx * 8) * scale;
+          const py = y + (7 + dy * 8) * scale;
+          const ds = 2 * scale;
+          ctx.beginPath();
+          ctx.moveTo(px, py - ds); ctx.lineTo(px + ds, py);
+          ctx.lineTo(px, py + ds); ctx.lineTo(px - ds, py);
+          ctx.closePath(); ctx.fill();
+        }
+      }
+
+      // Tassels on top and bottom edges
+      ctx.fillStyle = '#c09878';
+      for (let i = 0; i < 10; i++) {
+        const tx = x + (2 + i * 4.5) * scale;
+        ctx.fillRect(tx, y - 1.5 * scale, scale * 0.7, 2 * scale);
+        ctx.fillRect(tx, y + h - 0.5 * scale, scale * 0.7, 2 * scale);
+      }
+    },
+  };
+}
+
+// Cat pet — wanders around, nudge-able on click
+export function createCat(col: number, row: number): InteractiveObject {
+  return {
+    id: 'cat', sprites: [catSprite1, catSprite2], position: { col, row },
+    hitbox: { w: 20, h: 14 }, zY: (row + 0.5) * TILE_SIZE,
+    state: {
+      targetCol: col, targetRow: row,
+      moveTimer: 3 + Math.random() * 4,
+      nudged: 0, purring: 0,
+      facingRight: true,
+    },
+    onClick: (obj) => {
+      obj.state.nudged = 1.0;
+      obj.state.purring = 3;
+      const dx = (Math.random() - 0.5) * 3;
+      const dy = (Math.random() - 0.5) * 2;
+      const newCol = Math.max(0.5, Math.min(5.2, (obj.position.col + dx)));
+      const newRow = Math.max(1.2, Math.min(2.5, (obj.position.row + dy)));
+      obj.state.targetCol = newCol;
+      obj.state.targetRow = newRow;
+      return '🐱 Mrrp!';
     },
     render: (ctx, obj, tick, scale) => {
       const dt = 0.016;
-      if ((obj.state.flashTimer as number) > 0) {
-        obj.state.flashTimer = (obj.state.flashTimer as number) - dt;
+
+      // Wander AI
+      obj.state.moveTimer = (obj.state.moveTimer as number) - dt;
+      if ((obj.state.moveTimer as number) <= 0) {
+        obj.state.moveTimer = 4 + Math.random() * 6;
+        obj.state.targetCol = 0.5 + Math.random() * 4.5;
+        obj.state.targetRow = 1.2 + Math.random() * 1.3;
       }
-      const sprite = (obj.state.on as boolean) ? obj.sprites[0] : obj.sprites[1];
+
+      // Move toward target
+      const tcol = obj.state.targetCol as number;
+      const trow = obj.state.targetRow as number;
+      const dx = tcol - obj.position.col;
+      const dy = trow - obj.position.row;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > 0.1) {
+        const speed = 0.8 * dt;
+        obj.position.col += (dx / dist) * speed;
+        obj.position.row += (dy / dist) * speed;
+        obj.state.facingRight = dx > 0;
+      }
+
+      // Update z for sorting
+      obj.zY = (obj.position.row + 0.5) * TILE_SIZE;
+
+      // Nudge bounce
+      if ((obj.state.nudged as number) > 0)
+        obj.state.nudged = Math.max(0, (obj.state.nudged as number) - dt * 3);
+      if ((obj.state.purring as number) > 0)
+        obj.state.purring = Math.max(0, (obj.state.purring as number) - dt);
+
       const x = obj.position.col * TILE_SIZE * scale;
-      const y = obj.position.row * TILE_SIZE * scale;
-      renderSprite(ctx, sprite!, x, y, scale);
+      let y = obj.position.row * TILE_SIZE * scale;
 
-      if (obj.state.on as boolean) {
-        const cx = x + 8 * scale;
-        const cy = y + 6 * scale;
-        const pulseR = 30 * scale + Math.sin(tick * 2) * 3 * scale;
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulseR);
-        grad.addColorStop(0, 'rgba(255,240,180,0.15)');
-        grad.addColorStop(0.5, 'rgba(255,240,180,0.05)');
-        grad.addColorStop(1, 'rgba(255,240,180,0)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(cx - pulseR, cy - pulseR, pulseR * 2, pulseR * 2);
+      // Bounce on nudge
+      if ((obj.state.nudged as number) > 0)
+        y -= Math.sin((obj.state.nudged as number) * Math.PI) * 4 * scale;
+
+      // Bob while walking
+      if (dist > 0.1)
+        y += Math.sin(tick * 8) * 0.5 * scale;
+
+      // Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.1)';
+      ctx.beginPath();
+      ctx.ellipse(x + 6 * scale, obj.position.row * TILE_SIZE * scale + 8 * scale, 4 * scale, 1.2 * scale, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sprite — alternate tail while moving
+      const sprite = (dist > 0.1 && Math.floor(tick * 3) % 2 === 0) ? obj.sprites[1] : obj.sprites[0];
+
+      if (!(obj.state.facingRight as boolean)) {
+        ctx.save();
+        ctx.translate(x + 12 * scale, 0);
+        ctx.scale(-1, 1);
+        renderSprite(ctx, sprite!, 0, y, scale);
+        ctx.restore();
+      } else {
+        renderSprite(ctx, sprite!, x, y, scale);
       }
 
-      if ((obj.state.flashTimer as number) > 0) {
-        ctx.fillStyle = `rgba(255,255,200,${(obj.state.flashTimer as number)})`;
-        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      // Purr hearts
+      if ((obj.state.purring as number) > 0) {
+        const ha = 0.3 + 0.3 * Math.sin(tick * 5);
+        ctx.fillStyle = `rgba(255,100,100,${ha})`;
+        ctx.font = `${Math.max(8, 3 * scale)}px sans-serif`;
+        ctx.fillText('♥', x + 4 * scale, y - 2 * scale);
+      }
+    },
+  };
+}
+
+function createCoffeeMug(col: number, row: number): InteractiveObject {
+  return {
+    id: 'coffee', sprites: [], position: { col, row },
+    hitbox: { w: 8, h: 10 }, zY: (row + 0.3) * TILE_SIZE,
+    state: { steamTimer: 0 },
+    onClick: (obj) => { obj.state.steamTimer = 3; return '☕ Ahh, fresh coffee'; },
+    render: (ctx, obj, tick, scale) => {
+      if ((obj.state.steamTimer as number) > 0) {
+        obj.state.steamTimer = (obj.state.steamTimer as number) - 0.016;
+        const x = obj.position.col * TILE_SIZE * scale;
+        const y = obj.position.row * TILE_SIZE * scale;
+        for (let i = 0; i < 3; i++) {
+          const sx = x + (2 + i * 2) * scale;
+          const sy = y - (2 + i * 1.5 + (3 - (obj.state.steamTimer as number)) * 2) * scale;
+          const alpha = 0.3 + 0.2 * Math.sin(tick * 4 + i * 2);
+          ctx.fillStyle = `rgba(220,220,220,${alpha})`;
+          ctx.beginPath();
+          ctx.arc(sx + Math.sin(tick * 3 + i) * scale, sy, (1.5 - i * 0.3) * scale, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     },
   };
@@ -344,12 +545,16 @@ export function createLamp(col: number, row: number): InteractiveObject {
 
 export function createDefaultObjects(): InteractiveObject[] {
   return [
-    createLamp(14, 0),
-    createWhiteboard(18, 0),
-    createDesk(4, 4),
-    createChair(5, 6),
-    createCoffeeMug(8, 4),
-    createPlant(1, 6),
-    createArcadeCabinet(25, 3),
+    createRug(1.5, 1.4),
+    createLamp(0.5, 0),
+    createWindow(3.8, 0.1),
+    createDesk(1.5, 0.6),
+    createChair(1.8, 1.3),
+    createCoffeeMug(3, 0.85),
+    createBookshelf(5.1, 0.2),
+    createWaterCooler(4.5, 1.5),
+    createArcadeCabinet(0, 0.8),
+    createPlant(5.2, 2),
+    createCat(3, 1.8),
   ];
 }

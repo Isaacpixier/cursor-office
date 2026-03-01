@@ -5,3 +5,6 @@ node_modules/**
 tsconfig.json
 esbuild.mjs
 *.map
+test.html
+test-visual.py
+dist/*.map

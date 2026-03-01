@@ -5,7 +5,9 @@ import { updateCharacter } from './character';
 export function startGameLoop(
   canvas: HTMLCanvasElement,
   state: OfficeState,
-  getScale: () => number
+  getScale: () => number,
+  getOffsetX: () => number,
+  getOffsetY: () => number
 ) {
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
@@ -20,8 +22,10 @@ export function startGameLoop(
     updateCharacter(state.character, dt);
 
     const scale = getScale();
+    const offsetX = getOffsetX();
+    const offsetY = getOffsetY();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    renderOffice(ctx, state, scale);
+    renderOffice(ctx, state, scale, offsetX, offsetY);
 
     requestAnimationFrame(loop);
   }

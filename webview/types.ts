@@ -25,7 +25,7 @@ export interface CharacterState {
   animFrame: number;
   speechBubble: string | null;
   speechBubbleTimer: number;
-  facingDir: 'down' | 'up' | 'left' | 'right';
+  facingDir: 'left' | 'right' | 'back';
 }
 
 export interface OfficeState {
@@ -33,7 +33,6 @@ export interface OfficeState {
   character: CharacterState;
   dimmed: boolean;
   tick: number;
-  agentStatus: string | null;
   hoveredObjectId: string | null;
 }
 

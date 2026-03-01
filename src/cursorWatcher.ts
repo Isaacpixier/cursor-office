@@ -150,7 +150,7 @@ export class CursorWatcher implements vscode.Disposable {
     if (this.idleTimer) clearTimeout(this.idleTimer);
     this.idleTimer = setTimeout(() => {
       this.onStatusChange({ activity: 'idle', statusText: null });
-    }, 8000);
+    }, 30000);
   }
 
   dispose() {

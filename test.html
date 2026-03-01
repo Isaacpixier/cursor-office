@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Agent Arcade Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #1a1a2e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    #officeCanvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="officeCanvas"></canvas>
+  <script>
+    // Stub the VS Code API
+    function acquireVsCodeApi() {
+      return { postMessage: function(){}, getState: function(){return null;}, setState: function(){} };
+    }
+  </script>
+  <script src="dist/webview.js"></script>
+</body>
+</html>

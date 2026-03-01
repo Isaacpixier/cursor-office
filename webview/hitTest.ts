@@ -1,7 +1,7 @@
 import { InteractiveObject, OfficeState } from './types';
 import { TILE_SIZE } from './sprites';
 
-const NON_CLICKABLE = new Set(['desk', 'chair']);
+const NON_CLICKABLE = new Set(['desk', 'chair', 'rug']);
 
 export function hitTest(
   mouseX: number,
@@ -17,8 +17,8 @@ export function hitTest(
 
     const ox = obj.position.col * tileS;
     const oy = obj.position.row * tileS;
-    const ow = obj.hitbox.w * tileS;
-    const oh = obj.hitbox.h * tileS;
+    const ow = obj.hitbox.w * scale;
+    const oh = obj.hitbox.h * scale;
 
     if (mouseX >= ox && mouseX < ox + ow && mouseY >= oy && mouseY < oy + oh) {
       return obj;
@@ -27,11 +27,13 @@ export function hitTest(
   return null;
 }
 
-export function handleClick(mouseX: number, mouseY: number, state: OfficeState, scale: number) {
+export function handleClick(mouseX: number, mouseY: number, state: OfficeState, scale: number): string | null {
   const obj = hitTest(mouseX, mouseY, state.objects, scale);
   if (obj) {
     obj.onClick(obj, state);
+    return obj.id;
   }
+  return null;
 }
 
 export function updateHover(mouseX: number, mouseY: number, state: OfficeState, scale: number) {

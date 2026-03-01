@@ -1,72 +1,173 @@
-# agent-arcade
+# Agent Arcade - Pixel Art Office for Your Cursor AI Agent
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
+[![VS Code](https://img.shields.io/badge/Cursor-1.85+-007ACC.svg)](https://cursor.com)
 
-A living pixel art office that watches your Cursor AI agent work — and lets you interact with the world while you wait.
+Your AI agent gets a tiny office. It sits at the desk when coding, wanders around on breaks, celebrates when builds pass. You can click things while you wait.
 
 ```
-Install → Open bottom panel → Watch your agent type, read, and celebrate
-Click the coffee mug. Grow the plant. Toggle the lights. Tap the arcade cabinet.
+Install → Open "Agent Arcade" tab in bottom panel → done
 ```
 
-> Cursor-native. 27KB. No paid assets. No setup. Just install and go.
+> 27KB total. No paid assets, no frameworks, no config. Pure Canvas 2D pixel art drawn from code.
 
-![Agent Arcade](assets/demo.gif)
+![Agent Arcade pixel art office - AI agent working at desk, wandering idle, celebrating builds](assets/demo.gif)
+
+---
+
+## What Happens
+
+The extension watches Cursor's agent transcript files. When the agent writes code, the character walks to the desk and types. When it reads files, the bubble says so. When it finishes, it celebrates.
+
+Between tasks, the character has a life of its own. Coffee breaks, browsing the bookshelf, petting the cat, stretching. Click any object and the character notices - walks over after a short delay to check it out.
+
+| Agent doing | Character does |
+|---|---|
+| Writing / editing code | Sits at desk, types (back to you) |
+| Reading files | At desk, speech bubble shows what |
+| Running commands | At desk with status bubble |
+| Idle / thinking | Wanders the office, interacts with objects |
+| Build passes | Jumps and celebrates |
+
+---
+
+## Interactive Objects
+
+Everything in the office is clickable.
+
+| Object | What it does |
+|---|---|
+| Lamp | Toggle room lights on/off |
+| Window | Open/close curtains (sky changes with real time of day) |
+| Arcade cabinet | Cycles through mini-games on screen (Space Invaders, Tetris, Pong) |
+| Bookshelf | Shows book titles one by one |
+| Water cooler | Bubble animation |
+| Plant | Grows through 3 stages as you click (water it!) |
+| Cat | Nudges it - purrs, wanders back |
+| Coffee mug | Steam animation |
+
+Click any object while the agent is idle and the character walks over to it after a beat.
+
+---
 
 ## Install
 
-### From VSIX (current)
+### From source (current)
 
 ```bash
 git clone https://github.com/ofershap/agent-arcade.git
 cd agent-arcade
-npm install && npm run build
-npx @vscode/vsce package --allow-star-activation
-cursor --install-extension agent-arcade-0.1.0.vsix
+npm install
+npm run build
+npx vsce package --no-dependencies
 ```
 
-### From Marketplace (coming soon)
+Then in Cursor: `Cmd+Shift+P` > "Install from VSIX" > select `agent-arcade-0.1.0.vsix`.
 
-Search "Agent Arcade" in the Cursor extensions panel.
+The panel appears as a tab in the bottom panel bar (next to Terminal, Output, etc).
 
-## What It Does
+### From marketplace
 
-Your AI agent appears as a pixel character sitting at a desk in a tiny office. The character's behavior mirrors what the agent is actually doing — typing when editing code, reading when inspecting files, celebrating when a task completes.
+Coming soon.
 
-The office is interactive. Click objects and things happen:
-
-| Object | Interaction |
-|--------|-------------|
-| Coffee mug | Steam rises, satisfying micro-animation |
-| Plant | Grows through 3 stages on repeated clicks |
-| Lamp | Toggles room lighting (dim/bright mode) |
-| Whiteboard | Displays the agent's current activity |
-| Arcade cabinet | Easter egg — tap it 3 times |
+---
 
 ## How It Works
 
-The extension watches Cursor's agent transcript files (`~/.cursor/projects/<workspace>/agent-transcripts/`) and infers what the agent is doing from the text of its responses. No API hooks, no control layer — purely observational.
+Agent Arcade reads Cursor's JSONL agent transcripts at `~/.cursor/projects/<workspace>/agent-transcripts/`. It watches for file changes and infers what the agent is doing from the transcript content - writing, reading, running commands, searching, or idle.
 
-## Development
+No modification to Cursor is needed. It's read-only observation of transcript files that Cursor already writes.
 
-```bash
-npm install
-npm run build       # one-time build
-npm run watch       # watch mode
+```
+Cursor writes JSONL transcript
+    ↓
+FileWatcher detects change
+    ↓
+TranscriptParser infers activity (typing/reading/running/idle)
+    ↓
+postMessage to webview
+    ↓
+Character walks to desk / wanders / celebrates
 ```
 
-Build produces two bundles via esbuild:
-- `dist/extension.js` — VS Code extension host (Node.js)
-- `dist/webview.js` — Canvas 2D webview (browser)
+---
 
-## Tech
+## Project Structure
 
-- Vanilla TypeScript + Canvas 2D (no React, no game engine)
-- All sprites hardcoded as pixel color arrays — zero external asset dependencies
-- esbuild for both bundles
-- 27KB packaged VSIX
+```
+src/
+├── extension.ts          # Extension entry, registers panel
+├── panelProvider.ts       # WebviewViewProvider, HTML injection
+├── cursorWatcher.ts       # Watches transcript dirs for changes
+└── transcriptParser.ts    # Parses JSONL, infers agent activity
+
+webview/
+├── index.ts              # Canvas setup, event handlers, message bridge
+├── office.ts             # Renders walls, floor, lighting, z-sorting
+├── character.ts          # Movement, idle waypoints, speech bubbles
+├── objects.ts            # All interactive objects (arcade, plant, cat...)
+├── sprites.ts            # Programmatic pixel art sprite generation
+├── hitTest.ts            # Click and hover detection
+├── gameLoop.ts           # requestAnimationFrame loop
+├── canvas.ts             # Shared drawing utils
+└── types.ts              # TypeScript interfaces
+```
+
+All sprites are generated procedurally in `sprites.ts` using `fill()` and `outline()` helpers on pixel arrays. No external image assets.
+
+---
+
+## Idle Behavior
+
+When the agent isn't working, the character cycles through activities on its own:
+
+- Standing and looking around
+- Walking to the coffee mug
+- Browsing the bookshelf (faces away from you)
+- Petting the cat
+- Playing the arcade cabinet
+- Stretching (arms up)
+- Watering the plant
+- Getting water from the cooler
+
+Each activity has its own duration with some randomness so it doesn't feel robotic. The character walks between spots at a leisurely pace, and faster when heading to the desk for work.
+
+---
+
+## Screenshots
+
+| Idle | Working | Celebrating |
+|---|---|---|
+| ![idle](assets/idle.png) | ![working](assets/working.png) | ![celebrating](assets/celebrate.png) |
+
+Lamp off:
+
+![dark mode](assets/dark.png)
+
+---
+
+## Differences from Pixel Agents
+
+[Pixel Agents](https://github.com/pablodelucca/pixel-agents) is a similar concept for Claude Code terminals. Agent Arcade is different in a few ways:
+
+- Cursor-native (reads Cursor transcripts, not Claude Code terminals)
+- Single character in a fixed office (not multi-agent with spawning)
+- All art is procedural code, no paid sprite sheets or external assets
+- Interactive objects with click-to-attract behavior
+- Dynamic window with real-time day/night cycle
+- Arcade cabinet with playable mini-game animations
+- 27KB bundled, zero runtime dependencies
+
+---
+
+## Author
+
+[![Made by ofershap](https://gitshow.dev/api/card/ofershap)](https://gitshow.dev/ofershap)
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://linkedin.com/in/ofershap)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=flat&logo=github&logoColor=white)](https://github.com/ofershap)
 
 ## License
 
-MIT
+[MIT](LICENSE) &copy; [Ofer Shapira](https://github.com/ofershap)

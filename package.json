@@ -12,8 +12,8 @@
   "engines": {
     "vscode": "^1.85.0"
   },
-  "categories": ["Other"],
-  "keywords": ["cursor", "agent", "pixel-art", "ai", "companion", "interactive"],
+  "categories": ["Other", "Visualization"],
+  "keywords": ["cursor", "agent", "pixel-art", "ai", "companion", "interactive", "office", "animation", "coding-assistant", "pet"],
   "activationEvents": ["*"],
   "main": "./dist/extension.js",
   "contributes": {
