@@ -55,10 +55,12 @@ Glance at the bottom panel. Character at the desk? Things are happening. Charact
 | Your agent is... | The office shows... |
 |---|---|
 | Writing / editing code | Character sits at desk, types away (back to you, like a real employee) |
-| Reading files | At desk, speech bubble shows which file |
-| Running commands | At desk with terminal status bubble |
+| Reading files | At desk, speech bubble shows 📖 |
+| Running commands | At desk with ⚡ status bubble |
+| Spawning subagents | Picks up the red desk phone — "Delegating..." |
 | Idle / between tasks | Wanders the office. Coffee, bookshelf, cat, arcade |
-| Build passes | Jumps up and celebrates |
+| Done with real work | Jumps up and celebrates (only after actual edits, not just chatting) |
+| Hit an error | ⁉️ bubble, walks away from desk |
 
 ---
 
@@ -76,6 +78,7 @@ Your agent's office is better than yours.
 | 🌱 Plant | Grows through 3 stages when you water it (click it!) |
 | 🐱 Cat | Nudge it. Purrs, wanders off, comes back |
 | ☕ Coffee mug | Steam rises. Always fresh |
+| 📞 Desk phone | Rings and vibrates when the agent delegates to a subagent |
 | 🤖 Roomba | Drifts in every few minutes to clean the floor |
 
 Click any object while idle and the character walks over to check it out.
@@ -119,21 +122,9 @@ The office appears as a tab in the bottom panel bar (next to Terminal, Output, e
 
 ---
 
-## Zero Modification Required
+## How It Knows What Your Agent Is Doing
 
-Cursor Office reads Cursor's JSONL agent transcripts at `~/.cursor/projects/<workspace>/agent-transcripts/`. It watches for file changes and figures out what the agent is doing. No hacks, no patches, no API keys. Read-only. Watches files Cursor already writes.
-
-```
-Cursor writes JSONL transcript
-    ↓
-FileWatcher detects change
-    ↓
-TranscriptParser infers activity (typing / reading / running / idle)
-    ↓
-postMessage to webview
-    ↓
-Character walks to desk / wanders / celebrates
-```
+Works out of the box — no API keys, no patches, no config. The extension uses Cursor's [hooks API](https://docs.cursor.com/context/hooks) to react to every tool call, subagent spawn, and completion event in real time. Falls back to transcript file watching if hooks aren't available.
 
 ---
 
@@ -162,15 +153,27 @@ npm run watch          # rebuild on save
 
 Press F5 in Cursor/VS Code to launch the Extension Development Host.
 
+### Playground
+
+Open `dev/playground.html` in your browser after building. It renders the full office with buttons to simulate every agent state — idle, working, phone call, celebrate, error. No extension host needed. Great for iterating on sprites, objects, and animations.
+
+```bash
+npm run build && open dev/playground.html
+```
+
 <details>
 <summary>Project structure</summary>
 
 ```
 src/
-├── extension.ts          # Extension entry, registers panel
+├── extension.ts          # Extension entry, registers panel + commands
 ├── panelProvider.ts       # WebviewViewProvider, HTML injection
-├── cursorWatcher.ts       # Watches transcript dirs for changes
-└── transcriptParser.ts    # Parses JSONL, infers agent activity
+├── cursorWatcher.ts       # Watches transcripts or hooks state file
+├── transcriptParser.ts    # Parses JSONL, infers agent activity
+└── hooksInstaller.ts      # Installs/removes Cursor hooks
+
+hooks/
+└── cursor-office-hook.sh  # Shell script that hooks call, writes state file
 
 webview/
 ├── index.ts              # Canvas setup, event handlers, message bridge
@@ -185,6 +188,9 @@ webview/
 
 plugins/
 └── roomba.ts             # Reference plugin, robot vacuum cleaner
+
+dev/
+└── playground.html       # Visual sandbox for testing without Cursor
 ```
 
 </details>
@@ -193,15 +199,15 @@ plugins/
 
 ## Contributing
 
-Drop a `.ts` file in the [`plugins/`](plugins/) folder. The built-in Roomba ([`plugins/roomba.ts`](plugins/roomba.ts)) is the reference. Self-contained robot vacuum with its own sprite, state machine, and animations. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+Drop a `.ts` file in the [`plugins/`](plugins/) folder. The built-in Roomba ([`plugins/roomba.ts`](plugins/roomba.ts)) is the reference — self-contained robot vacuum with its own sprite, state machine, and animations. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 ```typescript
-// Your plugin
 import { createMyThing } from '../plugins/my-thing';
 
-// Or register at runtime
 window.cursorOffice.registerObject(myObject);
 ```
+
+Build, then open `dev/playground.html` in your browser to test your object without installing the extension. Click around, trigger state changes with the buttons at the bottom, and iterate until it looks right.
 
 ---
 

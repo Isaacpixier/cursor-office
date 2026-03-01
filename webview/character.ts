@@ -4,6 +4,8 @@ import { roundRect } from './canvas';
 
 const DESK_COL = 1.9;
 const DESK_ROW = 1.05;
+const PHONE_COL = 1.6;
+const PHONE_ROW = 1.05;
 const IDLE_COL = 3;
 const IDLE_ROW = 1.8;
 const CELEBRATE_COL = 3;
@@ -101,6 +103,12 @@ export function setActivity(char: CharacterState, activity: AgentActivity, statu
   if (activity === 'celebrating' && prev !== 'celebrating') {
     char.animFrame = 0;
     char.targetPosition = { col: CELEBRATE_COL, row: CELEBRATE_ROW };
+  } else if (activity === 'error') {
+    char.speechBubble = '⁉️';
+    char.speechBubbleTimer = 4;
+    char.targetPosition = { col: IDLE_COL, row: IDLE_ROW };
+  } else if (activity === 'phoning') {
+    char.targetPosition = { col: PHONE_COL, row: PHONE_ROW };
   } else if (activity === 'idle') {
     idleActionTimer = 0;
     idleAction = '';
@@ -122,6 +130,16 @@ export function updateCharacter(char: CharacterState, dt: number) {
         const dots = '.'.repeat((Math.floor(char.animFrame) % 3) + 1);
         char.speechBubble = `Working${dots}`;
         char.speechBubbleTimer = 0.5;
+      } else if (char.activity === 'phoning' && isAtPhone(char)) {
+        const dots = '.'.repeat((Math.floor(char.animFrame) % 3) + 1);
+        char.speechBubble = `Delegating${dots}`;
+        char.speechBubbleTimer = 0.5;
+      } else if (char.activity === 'error') {
+        char.speechBubble = null;
+        char.speechBubbleTimer = 0;
+        char.activity = 'idle';
+        idleActionTimer = 0;
+        idleAction = '';
       } else {
         char.speechBubble = null;
         char.speechBubbleTimer = 0;
@@ -131,6 +149,16 @@ export function updateCharacter(char: CharacterState, dt: number) {
     const dots = '.'.repeat((Math.floor(char.animFrame) % 3) + 1);
     char.speechBubble = `Working${dots}`;
     char.speechBubbleTimer = 0.5;
+  } else if (char.activity === 'phoning' && isAtPhone(char) && !char.speechBubble) {
+    const dots = '.'.repeat((Math.floor(char.animFrame) % 3) + 1);
+    char.speechBubble = `Delegating${dots}`;
+    char.speechBubbleTimer = 0.5;
+  }
+
+  if (char.activity === 'celebrating' && !char.targetPosition && char.animFrame > 16) {
+    char.activity = 'idle';
+    idleActionTimer = 0;
+    idleAction = '';
   }
 
   if (char.activity === 'idle') {
@@ -196,6 +224,10 @@ function isAtDesk(char: CharacterState): boolean {
   return Math.abs(char.position.col - DESK_COL) < 0.5 && Math.abs(char.position.row - DESK_ROW) < 0.5;
 }
 
+function isAtPhone(char: CharacterState): boolean {
+  return Math.abs(char.position.col - PHONE_COL) < 0.5 && Math.abs(char.position.row - PHONE_ROW) < 0.5;
+}
+
 function isWorking(activity: AgentActivity): boolean {
   return activity === 'typing' || activity === 'editing' || activity === 'running'
     || activity === 'searching' || activity === 'reading';
@@ -213,6 +245,9 @@ export function renderCharacter(ctx: CanvasRenderingContext2D, char: CharacterSt
   } else if (char.activity === 'celebrating') {
     sprite = sprites.celebrate;
     drawY -= Math.abs(Math.sin(char.animFrame * 4)) * 5 * scale;
+  } else if (char.activity === 'phoning' && isAtPhone(char)) {
+    sprite = sprites.phoning;
+    char.facingDir = 'back';
   } else if (isWorking(char.activity) && isAtDesk(char)) {
     sprite = Math.floor(char.animFrame * 2) % 2 === 0 ? sprites.sitType1 : sprites.sitType2;
     char.facingDir = 'back';
@@ -288,6 +323,8 @@ function renderSpeechBubble(ctx: CanvasRenderingContext2D, text: string, charX: 
     case 'searching': icon = '🔍 '; break;
     case 'typing': icon = '⌨️ '; break;
     case 'celebrating': icon = '🎉 '; break;
+    case 'phoning': icon = '📞 '; break;
+    case 'error': icon = ''; break;
   }
 
   const displayText = text.length > 22 ? text.slice(0, 19) + '...' : text;
@@ -308,7 +345,9 @@ function renderSpeechBubble(ctx: CanvasRenderingContext2D, text: string, charX: 
   roundRect(ctx, bx, by, bubbleW, bubbleH, 3 * scale);
   ctx.fill();
 
-  ctx.strokeStyle = char.activity === 'idle' ? 'rgba(180,180,180,0.4)' : 'rgba(100,160,255,0.5)';
+  ctx.strokeStyle = char.activity === 'error' ? 'rgba(255,80,80,0.6)' :
+    char.activity === 'phoning' ? 'rgba(100,200,100,0.5)' :
+    char.activity === 'idle' ? 'rgba(180,180,180,0.4)' : 'rgba(100,160,255,0.5)';
   ctx.lineWidth = Math.max(1, scale * 0.5);
   roundRect(ctx, bx, by, bubbleW, bubbleH, 3 * scale);
   ctx.stroke();

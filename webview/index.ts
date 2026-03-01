@@ -110,6 +110,10 @@ window.addEventListener('message', (e) => {
   const msg = e.data as AgentMessage;
   if (msg.type === 'agentStatus') {
     setActivity(state.character, msg.activity, msg.statusText ?? undefined);
+    const phone = state.objects.find(o => o.id === 'phone');
+    if (phone) {
+      phone.state.ringing = msg.activity === 'phoning';
+    }
   }
 });
 

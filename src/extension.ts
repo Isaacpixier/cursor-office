@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { CursorOfficePanelProvider } from './panelProvider';
+import { registerHooksCommands } from './hooksInstaller';
 
 export function activate(context: vscode.ExtensionContext) {
   const provider = new CursorOfficePanelProvider(context.extensionUri);
@@ -17,6 +18,8 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand('cursorOffice.panel.focus');
     })
   );
+
+  registerHooksCommands(context);
 
   const statusBar = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left,

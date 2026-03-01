@@ -16,7 +16,7 @@ export interface InteractiveObject {
   render: (ctx: CanvasRenderingContext2D, obj: InteractiveObject, tick: number, scale: number) => void;
 }
 
-export type AgentActivity = 'idle' | 'typing' | 'reading' | 'running' | 'editing' | 'searching' | 'celebrating' | 'walking';
+export type AgentActivity = 'idle' | 'typing' | 'reading' | 'running' | 'editing' | 'searching' | 'celebrating' | 'walking' | 'phoning' | 'error';
 
 export interface CharacterState {
   activity: AgentActivity;

@@ -14,13 +14,16 @@ This is the extensibility API for future plugins/themes.
 
 | Object | `state` key | Behavior |
 |--------|------------|----------|
-| lamp | `on: boolean` | Toggle. Light cone renders in `office.ts` (separate from object render) |
-| window | `curtainsClosed: boolean` | Toggle curtains. Sky renders day/night based on system clock |
-| arcade | `gameIdx: number` | Cycles through 3 mini-game animations (Space Invaders, Tetris, Pong) |
-| coffee | `steamPhase: number` | Increments on click (visual only) |
-| cat | `sleeping: boolean, purring: boolean` | Toggle sleep/purr |
-| plant | `watered: boolean` | Toggle glow effect |
-| watercooler | `bubbles: number` | Increments bubble count |
+| lamp | `on: boolean` | Toggle. Sets `office.dimmed`. Flash effect on toggle. |
+| window | `open: boolean` | Toggle curtains. Sky renders day/night/sunset based on system clock. Light beam when open + daytime. |
+| arcade | `game: number` | Cycles through 3 mini-game animations (Space Invaders, Tetris, Pong). Scanline + glow effects. |
+| coffee | `steamTimer: number` | Click → steam particles rise for 3 seconds. |
+| cat | `targetCol/Row, moveTimer, nudged, purring, facingRight` | Autonomous wandering AI. Click → nudge bounce + purr hearts. |
+| plant | `stage, clicks, bounce` | Click → water. After 4 clicks → stage 1, 10 clicks → stage 2 (flowers + sparkles). |
+| watercooler | `bubbleTimer: number` | Click → rising bubbles for 2 seconds. |
+| phone | `ringing: boolean, ringTimer: number` | Vibrates when `ringing=true`. Synced with character phoning activity via message handler in `index.ts`. |
+| bookshelf | `selected, bubbleTimer, title` | Click → cycles through book titles, shows in custom wide bubble. |
+| rug | (none) | Non-interactive. Woven texture with diamond pattern and tassels. |
 
 ## Hitbox Gotchas
 - Hitbox `{ w, h }` is in PIXEL space (unscaled). Hit test multiplies by `scale`.

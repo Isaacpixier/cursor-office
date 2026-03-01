@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as os from 'os';
 import * as vscode from 'vscode';
 import { parseTranscriptLine, ParsedStatus } from './transcriptParser';
+import { isHooksInstalled, getStateFilePath } from './hooksInstaller';
 
 export class CursorWatcher implements vscode.Disposable {
   private watchers: fs.FSWatcher[] = [];
@@ -12,6 +13,10 @@ export class CursorWatcher implements vscode.Disposable {
   private onStatusChange: (status: ParsedStatus) => void;
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
   private dirWatcher: fs.FSWatcher | null = null;
+  private hooksMode = false;
+  private hooksWatcher: fs.FSWatcher | null = null;
+  private lastHooksContent = '';
+  private didRealWork = false;
   private log: vscode.OutputChannel;
 
   constructor(onStatusChange: (status: ParsedStatus) => void) {
@@ -20,8 +25,15 @@ export class CursorWatcher implements vscode.Disposable {
   }
 
   start(workspacePath?: string) {
+    if (isHooksInstalled()) {
+      this.log.appendLine('[start] Hooks detected — using hooks mode');
+      this.hooksMode = true;
+      this.startHooksWatcher();
+      return;
+    }
+
     const wsPath = workspacePath || vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-    this.log.appendLine(`[start] workspace: ${wsPath}`);
+    this.log.appendLine(`[start] workspace: ${wsPath} (transcript mode)`);
     this.transcriptsDir = this.findTranscriptsDir(wsPath);
     if (!this.transcriptsDir) {
       this.log.appendLine('[start] No transcripts directory found — watcher inactive');
@@ -42,6 +54,68 @@ export class CursorWatcher implements vscode.Disposable {
     }
 
     this.scanInterval = setInterval(() => this.scanAll(), 2000);
+  }
+
+  private startHooksWatcher() {
+    const stateFile = getStateFilePath();
+    this.log.appendLine(`[hooks] Watching state file: ${stateFile}`);
+
+    const pollState = () => {
+      try {
+        if (!fs.existsSync(stateFile)) return;
+        const content = fs.readFileSync(stateFile, 'utf-8').trim();
+        if (content === this.lastHooksContent) return;
+        this.lastHooksContent = content;
+
+        const state = JSON.parse(content);
+        let activity = state.activity || 'idle';
+        const tool = state.tool || null;
+
+        if (activity === 'editing' || activity === 'running') {
+          this.didRealWork = true;
+        }
+
+        if (activity === 'celebrating' && !this.didRealWork) {
+          activity = 'idle';
+        }
+
+        if (activity === 'idle' || activity === 'celebrating') {
+          this.didRealWork = false;
+        }
+
+        this.log.appendLine(`[hooks] ${activity}${tool ? ` (${tool})` : ''}`);
+
+        const statusMap: Record<string, string> = {
+          reading: 'Working...',
+          editing: 'Working...',
+          running: 'Working...',
+          typing: 'Working...',
+          searching: 'Working...',
+          celebrating: 'Done!',
+          phoning: 'Delegating...',
+          error: '⁉️',
+        };
+
+        this.onStatusChange({
+          activity: activity as ParsedStatus['activity'],
+          statusText: statusMap[activity] || null,
+        });
+      } catch (e) {
+        this.log.appendLine(`[hooks] Error reading state: ${e}`);
+      }
+    };
+
+    try {
+      this.hooksWatcher = fs.watch(path.dirname(stateFile), { persistent: false }, (_event, filename) => {
+        if (filename === path.basename(stateFile)) {
+          pollState();
+        }
+      });
+    } catch {
+      this.log.appendLine('[hooks] fs.watch on /tmp failed, falling back to polling');
+    }
+
+    this.scanInterval = setInterval(pollState, 1000);
   }
 
   private findTranscriptsDir(wsPath?: string): string | null {
@@ -160,7 +234,9 @@ export class CursorWatcher implements vscode.Disposable {
         if (status) {
           this.log.appendLine(`[activity] ${status.activity}: ${status.statusText}`);
           this.onStatusChange(status);
-          this.resetIdleTimer();
+          if (status.activity !== 'idle') {
+            this.resetIdleTimer();
+          }
         }
       }
     } catch (e) {
@@ -173,7 +249,7 @@ export class CursorWatcher implements vscode.Disposable {
     if (this.idleTimer) clearTimeout(this.idleTimer);
     this.idleTimer = setTimeout(() => {
       this.onStatusChange({ activity: 'idle', statusText: null });
-    }, 30000);
+    }, 8000);
   }
 
   dispose() {
@@ -181,6 +257,10 @@ export class CursorWatcher implements vscode.Disposable {
       try { w.close(); } catch {}
     }
     this.watchers = [];
+    if (this.hooksWatcher) {
+      try { this.hooksWatcher.close(); } catch {}
+      this.hooksWatcher = null;
+    }
     if (this.scanInterval) clearInterval(this.scanInterval);
     if (this.idleTimer) clearTimeout(this.idleTimer);
     this.filePositions.clear();

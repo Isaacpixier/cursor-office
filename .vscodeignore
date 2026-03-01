@@ -12,5 +12,6 @@ test-*.py
 /tmp/**
 *.vsix
 *.ppm
+dev/**
 test.html
 **/*.map

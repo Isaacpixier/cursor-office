@@ -2,24 +2,45 @@
 
 ## Activity States
 Working: `typing | editing | running | searching | reading` → character walks to desk (fast: 5.0), sits, types.
+`phoning` → character walks to PHONE_COL/PHONE_ROW, stands facing back, left arm holds handset. Triggers when agent spawns subagent (`Task` tool).
 `idle` → autonomous waypoint patrol.
-`celebrating` → jumps in center, then returns to idle.
+`celebrating` → jumps in center, auto-expires after ~4 seconds, then idle.
+`error` → shows ⁉️ bubble (4s), walks to idle area, then auto-transitions to idle.
+
+## Celebration Rules
+- Only triggers on `stop` hook with `status: "completed"` AND the session had "work" tools (editing/running/writing). Read-only or text-only sessions go straight to idle.
+- `cursorWatcher.ts` tracks `didWork` flag — set true on editing/running/writing tools, reset on idle/stop.
+- Auto-expires: after `animFrame > 16` (~4 seconds), transitions to idle.
+- Interrupted by work: any new work activity cuts celebration immediately.
 
 ## State Transitions (setActivity)
-- Any working state: clears `targetPosition`, then sets it to DESK pos. Character rushes there.
+- Any working state: sets target to DESK pos. Character rushes there.
+- `phoning`: sets target to PHONE pos. Phone object starts vibrating.
 - `idle`: resets `idleActionTimer` to 0 (immediately picks next waypoint).
 - `celebrating`: sets target to center (CELEBRATE_COL/ROW), resets animFrame.
+- `error`: shows ⁉️ bubble, sets target to idle area. After bubble expires → auto-idle.
 
-## Cursor Watcher → Extension → Webview Flow
-`cursorWatcher.ts` watches transcript files (`~/.cursor/projects/*/agent-transcripts/*.jsonl`).
-On change: reads JSONL → infers activity from last few lines → sends `{ type: 'agentStatus', activity, statusText }` via `panel.webview.postMessage()`.
-Idle timeout: 30 seconds of no file changes → activity = 'idle'.
+## Detection Modes (cursorWatcher.ts)
+Two modes, auto-selected on startup:
+
+### Mode 1: Transcript Parsing (default, zero setup)
+- Watches `~/.cursor/projects/*/agent-transcripts/*.jsonl`.
+- Reads last lines → infers activity from content heuristics.
+- Idle timeout: **8 seconds** of no file changes.
+- User lines (`"role":"user"`) → immediate idle (turn is over).
+
+### Mode 2: Cursor Hooks (opt-in, precise)
+- Activated via command palette: "Cursor Office: Enable Hooks".
+- Installs hooks into `~/.cursor/hooks.json` (see extension-architecture.mdc).
+- Hook script writes to `/tmp/cursor-office-state.json`, extension watches that file.
+- Events: `preToolUse` → activity, `stop` → celebrate/idle, `beforeSubmitPrompt` → idle, `subagentStart` → phoning, `subagentStop` → back to work.
+- Hooks are global — fires for ALL chats across ALL workspaces.
 
 ## Working State Persistence
 `isWorking()` returns true for all 5 working activities.
 While working + at desk, speech bubble auto-cycles "Working." dots (0.5s timer).
-This loop runs inside `updateCharacter()`. The bubble persists until activity changes.
-`isAtDesk()` tolerance is 0.5 tiles - prevents bubble from showing while walking to desk.
+While phoning + at phone, speech bubble auto-cycles "Delegating." dots (0.5s timer).
+`isAtDesk()` and `isAtPhone()` tolerance is 0.5 tiles.
 
 ## Idle Behavior
 `IDLE_WAYPOINTS` array - sequential list of (position, action, duration).

@@ -1,4 +1,4 @@
-export type AgentActivityType = 'idle' | 'typing' | 'reading' | 'running' | 'editing' | 'searching' | 'celebrating';
+export type AgentActivityType = 'idle' | 'typing' | 'reading' | 'running' | 'editing' | 'searching' | 'celebrating' | 'phoning' | 'error';
 
 export interface ParsedStatus {
   activity: AgentActivityType;
@@ -9,19 +9,19 @@ export function inferActivityFromText(text: string): ParsedStatus | null {
   const t = text.toLowerCase();
 
   if (/\b(read|reading|check|look at|inspect|examin|open)\b/.test(t) && /\b(file|code|content|config|package|module|source|dir|folder)\b/.test(t)) {
-    return { activity: 'reading', statusText: extractTarget(text, 'Reading') };
+    return { activity: 'reading', statusText: 'Working...' };
   }
   if (/\b(search|grep|find|glob|looking for|scan|explor)\b/.test(t)) {
-    return { activity: 'searching', statusText: extractTarget(text, 'Searching') };
+    return { activity: 'searching', statusText: 'Working...' };
   }
   if (/\b(run |running|execute|\$ |shell|terminal|npm |git |install|build|test|command)\b/.test(t)) {
-    return { activity: 'running', statusText: extractTarget(text, 'Running') };
+    return { activity: 'running', statusText: 'Working...' };
   }
   if (/\b(edit|updat|replac|modif|fix|chang|rewrit|writ|add .* to|creat|implement|refactor)\b/.test(t) && /\b(file|code|function|component|line|class|module|method)\b/.test(t)) {
-    return { activity: 'editing', statusText: extractTarget(text, 'Editing') };
+    return { activity: 'editing', statusText: 'Working...' };
   }
   if (/\b(web|fetch|url|browse|http|download)\b/.test(t)) {
-    return { activity: 'reading', statusText: 'Fetching web content...' };
+    return { activity: 'reading', statusText: 'Working...' };
   }
   if (/\b(complet|done|finish|success|all .* complete)\b/.test(t)) {
     return { activity: 'celebrating', statusText: 'Done!' };
@@ -52,6 +52,10 @@ export function parseTranscriptLine(line: string): ParsedStatus | null {
     const record = JSON.parse(line);
     const role = record.role || record.type;
     if (!role) return null;
+
+    if (role === 'user') {
+      return { activity: 'idle', statusText: null };
+    }
 
     if (role === 'assistant') {
       let text = '';

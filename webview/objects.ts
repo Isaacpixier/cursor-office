@@ -7,6 +7,7 @@ import {
   lampSprite, lampSpriteOff,
   bookshelfSprite, waterCoolerSprite,
   catSprite1, catSprite2,
+  phoneSprite,
   renderSprite,
 } from './sprites';
 import { createRoomba } from '../plugins/roomba';
@@ -345,7 +346,7 @@ export function createBookshelf(col: number, row: number): InteractiveObject {
 export function createWaterCooler(col: number, row: number): InteractiveObject {
   return {
     id: 'watercooler', sprites: [waterCoolerSprite], position: { col, row },
-    hitbox: { w: 16, h: 24 }, zY: row * TILE_SIZE + 24,
+    hitbox: { w: 20, h: 38 }, zY: row * TILE_SIZE + 24,
     state: { bubbleTimer: 0 },
     onClick: (obj) => { obj.state.bubbleTimer = 2; return '💧 Glug glug...'; },
     render: (ctx, obj, tick, scale) => {
@@ -544,6 +545,27 @@ function createCoffeeMug(col: number, row: number): InteractiveObject {
   };
 }
 
+function createPhone(col: number, row: number): InteractiveObject {
+  return {
+    id: 'phone', sprites: [phoneSprite], position: { col, row },
+    hitbox: { w: 16, h: 14 }, zY: (row + 0.3) * TILE_SIZE,
+    state: { ringing: false, ringTimer: 0 },
+    onClick: (obj) => {
+      obj.state.ringing = !(obj.state.ringing as boolean);
+      return (obj.state.ringing as boolean) ? '📞 Ring ring!' : '📞 Hung up';
+    },
+    render: (ctx, obj, tick, scale) => {
+      const x = obj.position.col * TILE_SIZE * scale;
+      const y = obj.position.row * TILE_SIZE * scale;
+      let drawX = x;
+      if (obj.state.ringing as boolean) {
+        drawX += Math.sin(tick * 20) * 0.5 * scale;
+      }
+      renderSprite(ctx, phoneSprite, drawX, y, scale);
+    },
+  };
+}
+
 export function createDefaultObjects(): InteractiveObject[] {
   return [
     createRug(1.5, 1.4),
@@ -551,6 +573,7 @@ export function createDefaultObjects(): InteractiveObject[] {
     createWindow(3.8, 0.15),
     createDesk(1.5, 0.6),
     createChair(1.8, 1.3),
+    createPhone(1.6, 0.88),
     createCoffeeMug(3, 0.85),
     createBookshelf(5.1, 0.2),
     createWaterCooler(4.5, 1.5),

@@ -1,3 +1,6 @@
 node_modules/
 dist/
+docs/
+releases/
 *.vsix
+.DS_Store

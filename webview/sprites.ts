@@ -416,28 +416,52 @@ export const bookshelfSprite: SpriteData = (() => {
   return s;
 })();
 
-// ============ WATER COOLER — 24×40 ============
+// ============ WATER COOLER — 20×44 ============
 
 export const waterCoolerSprite: SpriteData = (() => {
-  const s = makeSprite(24, 44);
-  const { waterBlue: WB, waterLight: WL, white: W, offWhite: OW, outline: O, red: R, blue: B } = PAL;
+  const s = makeSprite(20, 44);
+  const { white: W, offWhite: OW, outline: O, red: R, blue: B } = PAL;
+  const BD = '#5a5a6a';
+  const BL = '#6a6a7a';
+  const BT = '#aaddff';
+  const BM = '#88ccee';
+  const BD2 = '#66aadd';
 
-  // Bottle
-  fill(s, 9, 0, 14, 3, WB); outline(s, 9, 0, 14, 3, O);
-  fill(s, 7, 4, 16, 14, WL); outline(s, 7, 4, 16, 14, O);
-  fill(s, 9, 7, 14, 12, WB);
+  // Water bottle — bright, translucent blues
+  fill(s, 8, 0, 11, 3, BM); outline(s, 8, 0, 11, 3, O);
+  fill(s, 6, 4, 13, 5, BT); outline(s, 6, 4, 13, 5, O);
+  fill(s, 5, 6, 14, 17, BT); outline(s, 5, 6, 14, 17, O);
+  fill(s, 6, 7, 13, 16, BM);
+  fill(s, 7, 8, 12, 15, BT);
+  // Highlight shine on bottle
+  fill(s, 7, 7, 8, 14, '#cceeff');
+  // Horizontal bands
+  fill(s, 5, 10, 14, 10, BD2);
+  fill(s, 5, 14, 14, 14, BD2);
 
-  // Body
-  fill(s, 5, 15, 18, 32, W); outline(s, 5, 15, 18, 32, O);
-  fill(s, 7, 17, 9, 19, OW);
-  // Taps
-  s[22][19] = R; s[22][20] = R; s[24][19] = B; s[24][20] = B;
+  // Body — medium gray, not too dark
+  fill(s, 4, 18, 15, 31, BD); outline(s, 4, 18, 15, 31, O);
+  fill(s, 5, 19, 14, 30, BL);
+
+  // Front panel — white inset with taps
+  fill(s, 6, 21, 13, 29, W); outline(s, 6, 21, 13, 29, O);
+  // Blue tap (cold) — left
+  fill(s, 7, 23, 8, 24, B); outline(s, 7, 23, 8, 24, O);
+  s[25][7] = B; s[25][8] = B;
+  // Red tap (hot) — right
+  fill(s, 11, 23, 12, 24, R); outline(s, 11, 23, 12, 24, O);
+  s[25][11] = R; s[25][12] = R;
+
   // Drip tray
-  fill(s, 7, 26, 16, 27, PAL.chairSeat); outline(s, 7, 26, 16, 27, O);
+  fill(s, 5, 30, 14, 31, PAL.chairSeat); outline(s, 5, 30, 14, 31, O);
 
-  // Legs
-  fill(s, 7, 33, 10, 43, PAL.chairStem); outline(s, 7, 33, 10, 43, O);
-  fill(s, 13, 33, 16, 43, PAL.chairStem); outline(s, 13, 33, 16, 43, O);
+  // Base
+  fill(s, 3, 32, 16, 35, BD); outline(s, 3, 32, 16, 35, O);
+  fill(s, 4, 33, 15, 34, BL);
+
+  // Feet
+  fill(s, 4, 36, 6, 37, PAL.chairStem);
+  fill(s, 13, 36, 15, 37, PAL.chairStem);
 
   return s;
 })();
@@ -448,10 +472,10 @@ function makeCharHead(s: SpriteData, headY: number) {
   const { skin: SK, skinShadow: SS, hair: H, hairHighlight: HH, outline: O, black: BK } = PAL;
   // Hair — neatly combed, darker
   fill(s, 7, headY, 16, headY + 3, H); outline(s, 7, headY, 16, headY + 3, O);
-  fill(s, 8, headY + 1, 14, headY + 2, HH);
+  fill(s, 9, headY + 1, 12, headY + 1, HH);
   // Face
   fill(s, 7, headY + 4, 16, headY + 9, SK); outline(s, 7, headY + 4, 16, headY + 9, O);
-  fill(s, 7, headY + 4, 8, headY + 6, SS);
+  s[headY + 5][7] = SS;
   // Eyes
   s[headY + 6][9] = BK; s[headY + 6][10] = BK;
   s[headY + 6][13] = BK; s[headY + 6][14] = BK;
@@ -635,6 +659,100 @@ function makeCharacterBack(): SpriteData {
   return s;
 }
 
+// ============ DESK PHONE — 16×14 classic red rotary phone ============
+
+export const phoneSprite: SpriteData = (() => {
+  const s = makeSprite(16, 14);
+  const { outline: O } = PAL;
+  const RD = '#cc2222';
+  const RL = '#dd4444';
+  const RK = '#aa1818';
+  const HB = '#222230';
+  const HL = '#3a3a4e';
+
+  // Base body — rounded red block
+  fill(s, 2, 6, 13, 13, RD);
+  outline(s, 2, 6, 13, 13, O);
+  fill(s, 3, 7, 12, 12, RL);
+  fill(s, 3, 11, 12, 12, RK);
+
+  // Rotary dial circle on base
+  fill(s, 5, 8, 10, 11, RK);
+  outline(s, 5, 8, 10, 11, O);
+  fill(s, 6, 9, 9, 10, '#e8ddd0');
+  s[9][7] = '#888';
+  s[10][8] = '#888';
+
+  // Handset resting on top — earpiece left, mouthpiece right
+  fill(s, 0, 2, 4, 6, HB);
+  outline(s, 0, 2, 4, 6, O);
+  fill(s, 1, 3, 3, 5, HL);
+
+  fill(s, 11, 2, 15, 6, HB);
+  outline(s, 11, 2, 15, 6, O);
+  fill(s, 12, 3, 14, 5, HL);
+
+  // Handset bridge connecting earpiece to mouthpiece
+  fill(s, 4, 4, 11, 5, HB);
+  outline(s, 4, 4, 11, 5, O);
+
+  // Cradle bumps
+  s[6][4] = RD; s[6][11] = RD;
+  s[5][4] = O; s[5][11] = O;
+
+  // Cord coming off right side
+  s[10][14] = '#444'; s[11][15] = '#444';
+
+  return s;
+})();
+
+function makeCharacterPhoning(): SpriteData {
+  const s = makeSprite(24, 36);
+  const { suitDark: SD, suitMid: SM, suitHighlight: SH,
+    hair: H, hairHighlight: HH, pantsBase: PB, pantsDark: PD,
+    skin: SK, shoeDark: SHO, outline: O } = PAL;
+  const RD = '#cc2222';
+  const RL = '#dd4444';
+  const RK = '#aa1818';
+
+  // Back of head (same as back/sitType)
+  fill(s, 7, 0, 16, 9, H); outline(s, 7, 0, 16, 9, O);
+  fill(s, 8, 1, 15, 8, HH);
+  s[5][7] = SK; s[5][16] = SK;
+  // Neck
+  fill(s, 10, 10, 13, 11, SK);
+  // Back of jacket
+  fill(s, 5, 12, 18, 23, SM); outline(s, 5, 12, 18, 23, O);
+  fill(s, 6, 13, 17, 22, SD);
+  fill(s, 11, 13, 12, 22, SM);
+  fill(s, 6, 12, 17, 12, SH);
+
+  // Right arm down (resting)
+  fill(s, 18, 13, 21, 21, SD); outline(s, 18, 13, 21, 21, O);
+  fill(s, 19, 14, 20, 19, SM);
+  fill(s, 19, 22, 21, 23, SK); outline(s, 19, 22, 21, 23, O);
+
+  // Left arm raised holding phone to ear
+  fill(s, 2, 6, 5, 14, SD); outline(s, 2, 6, 5, 14, O);
+  fill(s, 3, 7, 4, 12, SM);
+  fill(s, 2, 3, 4, 6, SK); outline(s, 2, 3, 4, 6, O);
+
+  // Red handset at left ear (matches desk phone color)
+  fill(s, 0, 0, 2, 3, RD); outline(s, 0, 0, 2, 3, O);
+  fill(s, 1, 1, 1, 2, RL);
+  fill(s, 0, 4, 1, 6, RK);
+  fill(s, 0, 7, 2, 10, RD); outline(s, 0, 7, 2, 10, O);
+  fill(s, 1, 8, 1, 9, RL);
+
+  // Pants & shoes
+  fill(s, 6, 24, 17, 30, PB); outline(s, 6, 24, 17, 30, O);
+  fill(s, 6, 24, 8, 28, PD);
+  fill(s, 5, 31, 10, 34, SHO); outline(s, 5, 31, 10, 34, O);
+  fill(s, 13, 31, 18, 34, SHO); outline(s, 13, 31, 18, 34, O);
+
+  return s;
+}
+
 export const characterSprites = {
   idle: makeCharacterIdle(),
   back: makeCharacterBack(),
@@ -643,6 +761,7 @@ export const characterSprites = {
   celebrate: makeCharacterCelebrate(),
   walk1: makeCharacterWalk(0),
   walk2: makeCharacterWalk(1),
+  phoning: makeCharacterPhoning(),
 };
 
 export function renderSprite(ctx: CanvasRenderingContext2D, sprite: SpriteData, x: number, y: number, scale: number) {
